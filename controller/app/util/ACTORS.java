@@ -25,6 +25,7 @@ import org.sunbird.actor.systemsettings.SystemSettingsActor;
 import org.sunbird.actor.tenantpreference.TenantPreferenceManagementActor;
 import org.sunbird.actor.user.*;
 import org.sunbird.actor.userconsent.UserConsentActor;
+import org.sunbird.actor.wishlist.UserWishlistActor;
 import org.sunbird.util.search.SearchTelemetryGenerator;
 
 public enum ACTORS {
@@ -101,7 +102,8 @@ public enum ACTORS {
   USER_TNC_ACTOR(UserTnCActor.class, "user_tnc_actor"),
   USER_TYPE_ACTOR(UserTypeActor.class, "user_type_actor"),
   USER_UPDATE_ACTOR(UserUpdateActor.class, "user_update_actor"),
-  BACKGROUND_JOB_MANAGER_ACTOR(BackgroundJobManager.class, "background_job_manager_actor");
+  BACKGROUND_JOB_MANAGER_ACTOR(BackgroundJobManager.class, "background_job_manager_actor"),
+  USER_WISHLIST_ACTOR(UserWishlistActor.class, "user_wishlist_actor");
 
   ACTORS(Class clazz, String name) {
     actorClass = clazz;

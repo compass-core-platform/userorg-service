@@ -58,6 +58,7 @@ public final class JsonKey {
   public static final String COUNT = "count";
   public static final String COUNTRY_CODE = "countryCode";
   public static final String COURSE_ID = "courseId";
+  public static final String COURSE_IDS = "courseids";
   public static final String COURSE_NAME = "courseName";
   public static final String CREATE = "create";
   public static final String CREATED_BY = "createdBy";
@@ -651,6 +652,8 @@ public final class JsonKey {
   public static final String ES_USER_NOTES_INDEX = "es_user_notes_index";
   public static final String ES_USER_INDEX_ALIAS = "user_index_alias";
   public static final String ES_ORG_INDEX_INDEX = "org_index_alias";
+  public static final String WISHLIST = "wishlist";
+
 
   private JsonKey() {}
 }
