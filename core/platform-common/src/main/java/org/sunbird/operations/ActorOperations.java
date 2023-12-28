@@ -148,7 +148,10 @@ public enum ActorOperations {
     UPSERT_LOCATION_TO_ES("upsertLocationDataToES", "LBKGUPSRT"),
     DELETE_LOCATION_FROM_ES("deleteLocationDataFromES", "LBKGDEL"),
     ADD_ENCRYPTION_KEY("addEncryptionKey", "ADENCKEY"),
-    USER_CURRENT_LOGIN("userCurrentLogin", "USRLOG");
+    USER_CURRENT_LOGIN("userCurrentLogin", "USRLOG"),
+    GET_USER_WISHLIST("getUserWishlist","USRWL"),
+    ADD_USER_WISHLIST("addUserWishlist","ADDWL"),
+    REMOVE_USER_WISHLIST("removeUserWishlist","RMWL");
 
     private String value;
 
