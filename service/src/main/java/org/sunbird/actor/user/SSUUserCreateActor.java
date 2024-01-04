@@ -54,10 +54,11 @@ public class SSUUserCreateActor extends UserBaseActor {
         actorMessage.getRequestContext(), "SSUUserCreateActor:createSSUUser: User creation starts");
     actorMessage.toLower();
     Map<String, Object> userMap = actorMessage.getRequest();
+    /** userMap.put(
+        JsonKey.ROOT_ORG_ID, DataCacheHandler.getConfigSettings().get(JsonKey.CUSTODIAN_ORG_ID)); 
     userMap.put(
-        JsonKey.ROOT_ORG_ID, DataCacheHandler.getConfigSettings().get(JsonKey.CUSTODIAN_ORG_ID));
-    userMap.put(
-        JsonKey.CHANNEL, DataCacheHandler.getConfigSettings().get(JsonKey.CUSTODIAN_ORG_CHANNEL));
+        JsonKey.CHANNEL, DataCacheHandler.getConfigSettings().get(JsonKey.CUSTODIAN_ORG_CHANNEL)); */
+    userMap.put(JsonKey.CHANNEL,userMap.get(JsonKey.CHANNEL));
     if (actorMessage.getOperation().equalsIgnoreCase(ActorOperations.CREATE_SSU_USER.getValue())) {
       populateUserTypeAndSubType(userMap);
     }
