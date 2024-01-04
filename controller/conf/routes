@@ -139,7 +139,7 @@ GET     /v1/system/settings/list                @controllers.systemsettings.Syst
 POST    /v1/system/settings/set                 @controllers.systemsettings.SystemSettingsController.setSystemSetting(request: play.mvc.Http.Request)
 
 # Wishlist API
-GET     /v1/wishlist/get                        @controllers.wishlist.WishlistController.getUserWishlist(request: play.mvc.Http.Request)
+POST    /v1/wishlist/get                        @controllers.wishlist.WishlistController.getUserWishlist(request: play.mvc.Http.Request)
 POST    /v1/wishlist/add                        @controllers.wishlist.WishlistController.addToWishlist(request: play.mvc.Http.Request)
 POST    /v1/wishlist/remove                     @controllers.wishlist.WishlistController.removeFromWishlist(request: play.mvc.Http.Request)
 
