@@ -57,7 +57,7 @@ public class ElasticSearchHelper {
   public static final String ASC_ORDER = "ASC";
   public static final String STARTS_WITH = "startsWith";
   public static final String ENDS_WITH = "endsWith";
-  public static final String RAW_APPEND = ".keyword";
+  public static final String RAW_APPEND = ".raw";
   public static final int WAIT_TIME = 5;
   public static Timeout timeout = new Timeout(WAIT_TIME, TimeUnit.SECONDS);
   public static final List<String> upsertResults =
@@ -216,6 +216,7 @@ public class ElasticSearchHelper {
     } else {
       query.must(createTermQuery(key + RAW_APPEND, val, constraintsMap.get(key)));
     }
+    logger.info("Generated query: "+ query);
     return query;
   }
 
