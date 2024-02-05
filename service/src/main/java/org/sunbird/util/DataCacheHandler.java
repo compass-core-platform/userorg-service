@@ -203,6 +203,7 @@ public class DataCacheHandler implements Runnable {
         "DataCacheHandler:cacheSystemConfig: Cache system setting fields" + response.getResult());
     List<Map<String, Object>> responseList =
         (List<Map<String, Object>>) response.get(JsonKey.RESPONSE);
+    logger.info("responseList :: "+responseList);
     if (null != responseList && !responseList.isEmpty()) {
       for (Map<String, Object> resultMap : responseList) {
         tempConfigSettings.put(
@@ -212,6 +213,7 @@ public class DataCacheHandler implements Runnable {
     tempConfigSettings.put(JsonKey.PHONE_UNIQUE, String.valueOf(true));
     tempConfigSettings.put(JsonKey.EMAIL_UNIQUE, String.valueOf(true));
     updateFrameWorkCache(tempConfigSettings.get(JsonKey.USER_PROFILE_CONFIG));
+    logger.info("tempConfigSettings :: "+tempConfigSettings.get(JsonKey.USER_PROFILE_CONFIG));
     configSettings = tempConfigSettings;
   }
 
@@ -220,6 +222,7 @@ public class DataCacheHandler implements Runnable {
       try {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> valueMap = objectMapper.readValue(userProfileConfig, Map.class);
+        logger.info("valueMap to get framework ::"+valueMap);
         setFrameworkFieldsConfig((Map<String, List<String>>) valueMap.get(JsonKey.FRAMEWORK));
       } catch (Exception ex) {
         logger.error("Exception occurred while parsing framework details.", ex);
