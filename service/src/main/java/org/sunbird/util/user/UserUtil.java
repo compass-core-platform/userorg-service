@@ -854,8 +854,10 @@ public class UserUtil {
       userRequestMap.put(JsonKey.FRAMEWORK, framework);
       List<String> frameworkFields =
           DataCacheHandler.getFrameworkFieldsConfig().get(JsonKey.FIELDS);
+      logger.info("frameworkFields "+frameworkFields);
       List<String> frameworkMandatoryFields =
           DataCacheHandler.getFrameworkFieldsConfig().get(JsonKey.MANDATORY_FIELDS);
+      logger.info("frameworkMandatoryFields "+frameworkMandatoryFields);
       userRequestValidator.validateMandatoryFrameworkFields(
           userRequestMap, frameworkFields, frameworkMandatoryFields);
       Map<String, Object> rootOrgMap =
