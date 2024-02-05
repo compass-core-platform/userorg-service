@@ -199,7 +199,7 @@ public class DataCacheHandler implements Runnable {
     Map<String, String> tempConfigSettings = new ConcurrentHashMap();
     Response response =
         cassandraOperation.getAllRecords(KEY_SPACE_NAME, JsonKey.SYSTEM_SETTINGS_DB, null);
-    logger.debug(
+    logger.info(
         "DataCacheHandler:cacheSystemConfig: Cache system setting fields" + response.getResult());
     List<Map<String, Object>> responseList =
         (List<Map<String, Object>>) response.get(JsonKey.RESPONSE);
