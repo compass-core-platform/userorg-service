@@ -35,9 +35,9 @@ public class ContentStoreUtil {
     logger.info(context, "ContentStoreUtil:handleReadRequest: id = " + id);
 
     try {
-      String requestUrl =
-          ProjectUtil.getConfigValue(JsonKey.SUNBIRD_API_BASE_URL)
-              + ProjectUtil.getConfigValue(urlPath)
+      String requestUrl = "https://compass-dev.tarento.com/api/framework/v1/read"
+//          ProjectUtil.getConfigValue(JsonKey.SUNBIRD_API_BASE_URL)
+//              + ProjectUtil.getConfigValue(urlPath)
               + "/"
               + id;
       String response = HttpClientUtil.get(requestUrl, headers, null);
