@@ -31,6 +31,7 @@ public class FeedServiceImpl implements IFeedService {
     Map<String, Object> reqObj = new HashMap<>();
     reqObj.put(JsonKey.NOTIFICATIONS, Arrays.asList(request.getRequest()));
     req.setRequest(reqObj);
+    logger.info(context, "FeedServiceImpl:NOTIFICATIONS: "+reqObj);
     return serviceClient.sendSyncV2Notification(req,context);
   }
 
