@@ -62,6 +62,7 @@ public class UserFeedActor extends BaseActor {
         .getRequest()
         .put(JsonKey.CREATED_BY, (String) request.getContext().get(JsonKey.REQUESTED_BY));
     Response feedCreateResponse = feedService.insert(request, context);
+    logger.info("feedCreateResponse ::" +feedCreateResponse);
     sender().tell(feedCreateResponse, self());
   }
 
