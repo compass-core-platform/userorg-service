@@ -25,7 +25,7 @@ public class FeedServiceImpl implements IFeedService {
   @Override
   public Response insert(Request request, RequestContext context) {
 
-    logger.debug(context, "FeedServiceImpl:insert method called : ");
+    logger.info(context, "FeedServiceImpl:insert method called : ");
 
     Request req = new Request();
     Map<String, Object> reqObj = new HashMap<>();
