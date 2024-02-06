@@ -760,7 +760,8 @@ public class UserRequestValidator extends BaseRequestValidator {
                 .collect(Collectors.toList());
 
         List<String> fwRequestFieldList = fwRequestFieldEntry.getValue();
-
+        logger.info("validateFrameworkCategoryValues fwRequestFieldList" +fwRequestFieldList);
+        logger.info("validateFrameworkCategoryValues allowedFieldValues" +allowedFieldValues);
         for (String fwRequestField : fwRequestFieldList) {
           if (!allowedFieldValues.contains(fwRequestField)) {
             throw new ProjectCommonException(
