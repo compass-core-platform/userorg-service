@@ -876,8 +876,11 @@ public class UserUtil {
 
   private static void verifyFrameworkId(
       String hashTagId, List<String> frameworkIdList, RequestContext context) {
+    logger.info("verifyFrameworkId hashTagId" +hashTagId);
     List<String> frameworks = DataCacheHandler.getHashtagIdFrameworkIdMap().get(hashTagId);
+    logger.info("verifyFrameworkId frameworks" +frameworks);
     String frameworkId = frameworkIdList.get(0);
+    logger.info("verifyFrameworkId frameworkId" +frameworkId);
     if (frameworks != null && frameworks.contains(frameworkId)) {
       return;
     } else {
@@ -894,6 +897,7 @@ public class UserUtil {
   private static Map<String, List<Map<String, String>>> getFrameworkDetails(
       String frameworkId, RequestContext context) {
     if (DataCacheHandler.getFrameworkCategoriesMap().get(frameworkId) == null) {
+      logger.info("fetching framework details from api");
       handleGetFrameworkDetails(frameworkId, context);
     }
     return DataCacheHandler.getFrameworkCategoriesMap().get(frameworkId);
