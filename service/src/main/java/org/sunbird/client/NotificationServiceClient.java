@@ -46,10 +46,10 @@ public class NotificationServiceClient {
    * @return
    */
   public Response sendSyncV2Notification(Request reqObj, RequestContext context) {
-    logger.debug(context, "NotificationServiceClient:sendSyncV2Notification method called : ");
+    logger.info(context, "NotificationServiceClient:sendSyncV2Notification method called : ");
 
     String serviceUrl = getServiceApiUrl(JsonKey.NOTIFICATION_SERVICE_V2_SEND_URL);
-    logger.debug(context, "NotificationServiceClient:sendSyncV2Notification :: calling notification service URL :" + serviceUrl);
+    logger.info(context, "NotificationServiceClient:sendSyncV2Notification :: calling notification service URL :" + serviceUrl);
     try {
       return callCreateOrDeleteNotificationService(reqObj, context, serviceUrl);
     } catch (Exception ex) {
