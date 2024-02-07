@@ -142,4 +142,18 @@ public class NotificationServiceClient {
     String responseStr = HttpClientUtil.post(serviceUrl, json, getHeader(context), context);
     return mapper.readValue(responseStr, Response.class);
   }
+
+  public Response sendSyncV2NotificationV2(Request reqObj, RequestContext context) {
+    logger.info(context, "NotificationServiceClient:sendSyncV2Notification method called : ");
+
+    String serviceUrl = getServiceApiUrl(JsonKey.NOTIFICATION_SERVICE_SEND_URL);
+    logger.info(context, "NotificationServiceClient:sendSyncV2Notification :: calling notification service URL :" + serviceUrl);
+    try {
+      return callCreateOrDeleteNotificationService(reqObj, context, serviceUrl);
+    } catch (Exception ex) {
+      logger.error(context, "FeedServiceImpl:sendSyncV2Notification Exception occurred while mapping.", ex);
+      ProjectCommonException.throwServerErrorException(ResponseCode.SERVER_ERROR);
+    }
+    return null;
+  }
 }

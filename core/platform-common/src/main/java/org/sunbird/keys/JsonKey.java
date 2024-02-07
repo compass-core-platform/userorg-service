@@ -615,6 +615,7 @@ public final class JsonKey {
   public static final String DEBUG = "DEBUG";
   public static final String NOTIFICATION_SERVICE_BASE_URL = "notification_service_base_url";
   public static final String NOTIFICATION_SERVICE_V2_SEND_URL = "notification_service_v2_send_url";
+  public static final String NOTIFICATION_SERVICE_SEND_URL = "notification_service_send_url";
   public static final String NOTIFICATION_SERVICE_V1_UPDATE_URL =
       "notification_service_v1_update_url";
   public static final String NOTIFICATION_SERVICE_V1_READ_URL = "notification_service_v1_read_url";
