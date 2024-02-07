@@ -133,6 +133,7 @@ public class FeedServiceImpl implements IFeedService {
     action.put("createdBy", createdBy);
     notification.put("action", action);
     notification.put("ids", userIds);
+    notification.put("userId","c225b5e8-0b92-45e1-a5dc-86cce05c355a");
 
     // Create the request object
     Map<String, Object> reqObj = new HashMap<>();
