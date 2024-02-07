@@ -1,6 +1,10 @@
 package org.sunbird.actor.feed;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import java.io.IOException;
 import java.util.*;
 import org.sunbird.actor.core.BaseActor;
 import org.sunbird.client.NotificationServiceClient;
@@ -18,7 +22,7 @@ public class UserFeedActor extends BaseActor {
 
   private IFeedService feedService;
 
-
+  private final ObjectMapper mapper = new ObjectMapper();
   @Override
   public void onReceive(Request request) throws Throwable {
     Util.initializeContext(request, TelemetryEnvKey.USER);
@@ -40,6 +44,9 @@ public class UserFeedActor extends BaseActor {
         break;
       case "updateUserFeed":
         updateUserFeed(request, context);
+        break;
+      case "createUserFeedV2":
+        createUserFeedV2(request, context);
         break;
       default:
         onReceiveUnsupportedOperation();
@@ -80,5 +87,15 @@ public class UserFeedActor extends BaseActor {
     updateRequest.put(JsonKey.UPDATED_BY, request.getContext().get(JsonKey.REQUESTED_BY));
     Response feedUpdateResponse = feedService.update(request, context);
     sender().tell(feedUpdateResponse, self());
+  }
+
+  private void createUserFeedV2(Request request, RequestContext context) throws IOException {
+    request
+            .getRequest()
+            .put(JsonKey.CREATED_BY, (String) request.getContext().get(JsonKey.REQUESTED_BY));
+    logger.info("createUserFeedV2 ::" +request);
+    Response feedCreateResponse = feedService.insertV1(request, context);
+    logger.info("feedCreateResponse ::" +feedCreateResponse);
+    sender().tell(feedCreateResponse, self());
   }
 }

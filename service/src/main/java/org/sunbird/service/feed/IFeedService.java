@@ -46,4 +46,6 @@ public interface IFeedService {
    * @param context
    */
   void delete(Request request, RequestContext context);
+
+  Response insertV1(Request request, RequestContext context);
 }
