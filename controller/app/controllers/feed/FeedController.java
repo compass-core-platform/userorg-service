@@ -88,4 +88,20 @@ public class FeedController extends BaseController {
         true,
         httpRequest);
   }
+
+    public CompletionStage<Result> createUserFeedV2(Http.Request httpRequest) {
+        return handleRequest(
+                userFeedActor,
+                ActorOperations.CREATE_USER_FEED_V2.getValue(),
+                httpRequest.body().asJson(),
+                req -> {
+                    Request request = (Request) req;
+                    //FeedRequestValidator.validateFeedRequest(request);
+                    return null;
+                },
+                null,
+                null,
+                true,
+                httpRequest);
+    }
 }
