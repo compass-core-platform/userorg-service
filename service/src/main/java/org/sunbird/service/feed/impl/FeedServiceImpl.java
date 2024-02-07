@@ -142,7 +142,7 @@ public class FeedServiceImpl implements IFeedService {
 
     logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + reqObj);
 
-    return serviceClient.sendSyncV2Notification(req, context);
+    return serviceClient.sendSyncV2NotificationV2(req, context);
   }
 
 
