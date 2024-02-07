@@ -90,6 +90,7 @@ public enum ActorOperations {
     CREATE_USER_FEED("createUserFeed", "FEEDCRT"),
     DELETE_USER_FEED("deleteUserFeed", "FEEDDEL"),
     UPDATE_USER_FEED("updateUserFeed", "FEEDUPD"),
+    CREATE_USER_FEED_V2("createUserFeedV2", "FEEDCRT"),
 
     CREATE_USER_V3("createUserV3", "USRCRT"),
     CREATE_SSU_USER("createSSUUser", "USRCRT"),
