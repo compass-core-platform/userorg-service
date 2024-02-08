@@ -212,7 +212,7 @@ public class ElasticSearchHelper {
       }
     } else if (val instanceof String) {
       query.must(
-          createTermQuery(key + RAW_APPEND, ((String) val), constraintsMap.get(key)));
+          createTermQuery(key + RAW_APPEND, ((String) val).toLowerCase(), constraintsMap.get(key)));
     } else {
       query.must(createTermQuery(key + RAW_APPEND, val, constraintsMap.get(key)));
     }
