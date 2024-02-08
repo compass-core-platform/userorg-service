@@ -79,12 +79,13 @@ public class FeedServiceImpl implements IFeedService {
     }
   }
 
+  @Override
   public Response insertV1(Request request, RequestContext context) {
     logger.info(context, "FeedServiceImpl:insert method called");
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Map<String, Object> requestData = (Map<String, Object>) request.getRequest().get("request");
+    Map<String, Object> requestData = (Map<String, Object>) request.getRequest();
     Map<String, Object> data = (Map<String, Object>) requestData.get("data");
 
     List<String> roles = Optional.ofNullable((List<String>) request.getRequest().get("roles")).orElse(Collections.emptyList());
