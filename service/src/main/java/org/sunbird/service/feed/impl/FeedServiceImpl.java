@@ -84,67 +84,56 @@ public class FeedServiceImpl implements IFeedService {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    Map<String, Object> requestData = (Map<String, Object>) request.getRequest();
+    Map<String, Object> requestData = (Map<String, Object>) request.getRequest().get("request");
+    Map<String, Object> data = (Map<String, Object>) requestData.get("data");
 
-    List<String> roles = Optional.ofNullable((List<String>) requestData.get("roles")).orElse(Collections.emptyList());
+    List<String> roles = Optional.ofNullable((List<String>) request.getRequest().get("roles")).orElse(Collections.emptyList());
 
-    List<String> designations = Optional.ofNullable((List<String>) requestData.get("designations")).orElse(Collections.emptyList());
-
-    List<List<String>> taxonomyCategories = IntStream.rangeClosed(1, 5)  // Stream of integers from 1 to 5
+    List<List<String>> taxonomyCategories = IntStream.rangeClosed(1, 5)
             .mapToObj(i -> Optional.ofNullable((List<String>) requestData.get("taxonomyCategory" + i)))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toList());
 
-//    List<String> userIds = getUserIds(roles, designations, taxonomyCategories);
-
-    List<String> emailIds = Arrays.asList("anilkumar.kammalapalli@tarento.com");
-
-    System.out.println("printing data "+request.get("data"));
+    List<String> emailIds = (List<String>) data.get("ids");
 
     Map<String, Object> notification = new HashMap<>();
-    notification.put("type", "email");
+    notification.put("type", data.get("type"));
     notification.put("priority", 1);
-    Map<String, Object> action = new HashMap<>();
-    Map<String, Object> template = new HashMap<>();
-    Map<String, Object> config = new HashMap<>();
-    config.put("sender", "support@igot-dev.in");
-    config.put("subject", "New Content Request for Capacity Building Plan Development");
-    template.put("config", config);
-    template.put("type", "email");
-    template.put("data", request.get("data"));
-    template.put("id", "cbplanContentRequestTemplate");
-    Map<String, Object> params = new HashMap<>();
-    params.put("competency_subtheme", "Design Thinking, PEST (Political, Economic, Social, Technological) Consciousness, Research & Need Analysis.");
-    params.put("orgName", "Ministry for Testing");
-    params.put("mdo_name", "Ministry for Testing");
-    params.put("name", "Ministry for Testing");
-    params.put("description", "The content should be simple but exhaustive and should containe all the details mentioned above should be simple and easy to understand");
-    params.put("competency_area", "Functional");
-    params.put("competency_theme", "Citizen Centricity, Policy Architecture.");
-    params.put("fromEmail", "support@tarento.com");
-    template.put("params", params);
-    action.put("template", template);
-    action.put("type", "email");
-    action.put("category", "email");
-    Map<String, Object> createdBy = new HashMap<>();
-    createdBy.put("id", "userID");
-    createdBy.put("type", "user");
-    action.put("createdBy", createdBy);
-    notification.put("action", action);
-    notification.put("ids", emailIds);
-//    notification.put("userId","c225b5e8-0b92-45e1-a5dc-86cce05c355a");
 
-    // Create the request object
+    Map<String, Object> action = (Map<String, Object>) data.get("action");
+    Map<String, Object> template = (Map<String, Object>) action.get("template");
+    Map<String, Object> templateConfig = (Map<String, Object>) template.get("config");
+    Map<String, Object> params = (Map<String, Object>) template.get("params");
+
+    Map<String, Object> newTemplate = new HashMap<>();
+    newTemplate.put("config", templateConfig);
+    newTemplate.put("type", template.get("type"));
+    newTemplate.put("data", template.get("data"));
+    newTemplate.put("id", template.get("id"));
+    newTemplate.put("params", params);
+
+    Map<String, Object> newAction = new HashMap<>();
+    newAction.put("template", newTemplate);
+    newAction.put("type", action.get("type"));
+    newAction.put("category", action.get("category"));
+    newAction.put("createdBy", action.get("createdBy"));
+
+    notification.put("action", newAction);
+    notification.put("ids", emailIds);
+
     Map<String, Object> reqObj = new HashMap<>();
-    reqObj.put(JsonKey.NOTIFICATIONS, Arrays.asList(notification));
-    Request req = new Request();
-    req.setRequest(reqObj);
+    reqObj.put("notifications", Arrays.asList(notification));
+
+    Request newRequest = new Request();
+    newRequest.setRequest(reqObj);
 
     logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + reqObj);
 
-    return serviceClient.sendSyncV2NotificationV2(req, context);
+    return serviceClient.sendSyncV2NotificationV2(newRequest, context);
   }
+
+
 
 
   private List<String> getUserIds(List<String> roles, List<String> designations, List<List<String>> taxonomyCategories) {
