@@ -98,7 +98,7 @@ public class FeedServiceImpl implements IFeedService {
 
 //    List<String> userIds = getUserIds(roles, designations, taxonomyCategories);
 
-    List<String> userIds = Arrays.asList("anilkumar.kammalapalli@tarento.com");
+    List<String> emailIds = Arrays.asList("anilkumar.kammalapalli@tarento.com");
 
     System.out.println("printing data "+request.get("data"));
 
@@ -122,7 +122,7 @@ public class FeedServiceImpl implements IFeedService {
     params.put("description", "The content should be simple but exhaustive and should containe all the details mentioned above should be simple and easy to understand");
     params.put("competency_area", "Functional");
     params.put("competency_theme", "Citizen Centricity, Policy Architecture.");
-    params.put("fromEmail", "support@igot-dev.in");
+    params.put("fromEmail", "support@tarento.com");
     template.put("params", params);
     action.put("template", template);
     action.put("type", "email");
@@ -132,7 +132,7 @@ public class FeedServiceImpl implements IFeedService {
     createdBy.put("type", "user");
     action.put("createdBy", createdBy);
     notification.put("action", action);
-    notification.put("ids", userIds);
+    notification.put("ids", emailIds);
 //    notification.put("userId","c225b5e8-0b92-45e1-a5dc-86cce05c355a");
 
     // Create the request object
