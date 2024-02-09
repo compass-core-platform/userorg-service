@@ -93,6 +93,7 @@ public class FeedServiceImpl implements IFeedService {
     String body = buildUserSearchRequestBody(requestData);
     String URL = learner_BASE_URL + USER_SEARCH_URL;
     String userNames = HttpClientUtil.post(URL,body,null,context);
+    logger.info("printing userNames  "+userNames);
     List<String> mailIds = extractUserNames(userNames);
     logger.info("printing mailIds  "+mailIds);
     //ToDo for testing purpose after testing will remove
@@ -179,7 +180,7 @@ public class FeedServiceImpl implements IFeedService {
 
       // Construct request body
       requestBodyMap.put(JsonKey.FILTERS, filters);
-      requestBodyMap.put(JsonKey.FIELDS,JsonKey.USERNAME);
+      requestBodyMap.put(JsonKey.FIELDS,Arrays.asList(JsonKey.USERNAME));
       requestBody.put(JsonKey.REQUEST, requestBodyMap);
 
       return mapper.writeValueAsString(requestBody);
