@@ -654,7 +654,22 @@ public final class JsonKey {
   public static final String ES_USER_INDEX_ALIAS = "user_index_alias";
   public static final String ES_ORG_INDEX_INDEX = "org_index_alias";
   public static final String WISHLIST = "wishlist";
-
-
+  public static final String DESIGNATION = "designation";
+  public static final String TAXONOMYCATEGORYONE = "taxonomyCategory1";
+  public static final String TAXONOMYCATEGORYTWO = "taxonomyCategory2";
+  public static final String TAXONOMYCATEGORYTHREE = "taxonomyCategory3";
+  public static final String TAXONOMYCATEGORYFOUR = "taxonomyCategory4";
+  public static final String TAXONOMYCATEGORYFIVE = "taxonomyCategory5";
+  public static final String FRAMEWORKIDS = "frameworkIds";
+  public static final String ROLES_ROLE = "roles.role";
+  public static final String PROFILEDETAILS_PROFESSIONALDETAILS_DESIGNATION = "profileDetails.professionalDetails.designation";
+  public static final String FRAMEWORK_TAXONOMYCATEGORY1 = "framework.taxonomyCategory1";
+  public static final String FRAMEWORK_TAXONOMYCATEGORY2 = "framework.taxonomyCategory2";
+  public static final String FRAMEWORK_TAXONOMYCATEGORY3 = "framework.taxonomyCategory3";
+  public static final String FRAMEWORK_TAXONOMYCATEGORY4 = "framework.taxonomyCategory4";
+  public static final String FRAMEWORK_TAXONOMYCATEGORY5 = "framework.taxonomyCategory5";
+  public static final String FRAMEWORK_ID = "framework.id";
+  public static final String CONFIG = "config";
+  public static final String TEMPLATE = "template";
   private JsonKey() {}
 }
