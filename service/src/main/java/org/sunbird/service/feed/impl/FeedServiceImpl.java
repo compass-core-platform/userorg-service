@@ -200,8 +200,8 @@ public class FeedServiceImpl implements IFeedService {
     JSONArray contentArray = jsonResponse.getJSONObject(JsonKey.RESULT).getJSONObject(JsonKey.RESPONSE).getJSONArray(JsonKey.CONTENT);
 
     return contentArray.toList().stream()
-            .map(obj -> (JSONObject) obj)
-            .map(obj -> obj.getString(JsonKey.USERNAME))
+            .map(obj -> (Map<String, Object>) obj)
+            .map(obj -> (String) obj.get(JsonKey.USERNAME))
             .collect(Collectors.toList());
   }
 
