@@ -97,7 +97,7 @@ public class FeedServiceImpl implements IFeedService {
     List<String> mailIds = extractUserNames(userNames);
     logger.info("printing mailIds  "+mailIds);
     //ToDo for testing purpose after testing will remove
-    List<String> emailIds = List.of("anilkumar.kammalapalli@tarento.com");
+    List<String> emailIds = List.of("anilkumar.kammalapalli@tarento.com","santhosh.kumar@tarento.com");
     Map<String, Object> notification = buildNotification(requestData, emailIds);
     Request newRequest = buildRequest(notification);
 
@@ -136,51 +136,23 @@ public class FeedServiceImpl implements IFeedService {
     return notification;
   }
 
-
   public String buildUserSearchRequestBody(Map<String, Object> request) {
     try {
       Map<String, Object> requestBody = new HashMap<>();
       Map<String, Object> requestBodyMap = new HashMap<>();
       Map<String, Object> filters = new HashMap<>();
 
-      List<String> roles = Optional.ofNullable((List<String>) request.get(JsonKey.ROLES)).orElse(Collections.emptyList());
-      List<String> designation = Optional.ofNullable((List<String>) request.get(JsonKey.DESIGNATION)).orElse(Collections.emptyList());
-      List<String> taxonomyCategory1 = Optional.ofNullable((List<String>) request.get(JsonKey.TAXONOMYCATEGORYONE)).orElse(Collections.emptyList());
-      List<String> taxonomyCategory2 = Optional.ofNullable((List<String>) request.get(JsonKey.TAXONOMYCATEGORYTWO)).orElse(Collections.emptyList());
-      List<String> taxonomyCategory3 = Optional.ofNullable((List<String>) request.get(JsonKey.TAXONOMYCATEGORYTHREE)).orElse(Collections.emptyList());
-      List<String> taxonomyCategory4 = Optional.ofNullable((List<String>) request.get(JsonKey.TAXONOMYCATEGORYFOUR)).orElse(Collections.emptyList());
-      List<String> taxonomyCategory5 = Optional.ofNullable((List<String>) request.get(JsonKey.TAXONOMYCATEGORYFIVE)).orElse(Collections.emptyList());
-      List<String> frameworkIds = Optional.ofNullable((List<String>) request.get(JsonKey.FRAMEWORKIDS)).orElse(Collections.emptyList());
-
-
-      if (!roles.isEmpty()) {
-        filters.put(JsonKey.ROLES_ROLE, roles);
+      Map<String, Object> requestFilters = (Map<String, Object>) request.get("filters");
+      if (requestFilters != null) {
+        for (Map.Entry<String, Object> entry : requestFilters.entrySet()) {
+          Object value = entry.getValue();
+          if (isValidFilterValue(value)) {
+            filters.put(entry.getKey(), value);
+          }
+        }
       }
-      if (!designation.isEmpty()) {
-        filters.put(JsonKey.PROFILEDETAILS_PROFESSIONALDETAILS_DESIGNATION, designation);
-      }
-      if (!taxonomyCategory1.isEmpty()) {
-        filters.put(JsonKey.FRAMEWORK_TAXONOMYCATEGORY1, taxonomyCategory1);
-      }
-      if (!taxonomyCategory2.isEmpty()) {
-        filters.put(JsonKey.FRAMEWORK_TAXONOMYCATEGORY2, taxonomyCategory2);
-      }
-      if (!taxonomyCategory3.isEmpty()) {
-        filters.put(JsonKey.FRAMEWORK_TAXONOMYCATEGORY3, taxonomyCategory3);
-      }
-      if (!taxonomyCategory4.isEmpty()) {
-        filters.put(JsonKey.FRAMEWORK_TAXONOMYCATEGORY4, taxonomyCategory4);
-      }
-      if (!taxonomyCategory5.isEmpty()) {
-        filters.put(JsonKey.FRAMEWORK_TAXONOMYCATEGORY5, taxonomyCategory5);
-      }
-      if (!frameworkIds.isEmpty()) {
-        filters.put(JsonKey.FRAMEWORK_ID,frameworkIds);
-      }
-
-      // Construct request body
       requestBodyMap.put(JsonKey.FILTERS, filters);
-      requestBodyMap.put(JsonKey.FIELDS,Arrays.asList(JsonKey.USERNAME));
+      requestBodyMap.put(JsonKey.FIELDS, List.of(JsonKey.USERNAME,JsonKey.USER_ID));
       requestBody.put(JsonKey.REQUEST, requestBodyMap);
 
       return mapper.writeValueAsString(requestBody);
@@ -190,6 +162,33 @@ public class FeedServiceImpl implements IFeedService {
     }
   }
 
+  private boolean isValidFilterValue(Object value) {
+    if (value instanceof List) {
+      List<?> list = (List<?>) value;
+      return !list.isEmpty();
+    } else if (value instanceof String) {
+      String str = (String) value;
+      return !str.isEmpty();
+    } else if (value instanceof Number) {
+      return true;
+    }
+    return false;
+  }
+
+  public static List<String> extractUserIds(String responseString) {
+    if (responseString == null || responseString.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    JSONArray contentArray = new JSONObject(responseString)
+            .getJSONObject("result")
+            .getJSONObject("response")
+            .getJSONArray("content");
+
+    return IntStream.range(0, contentArray.length())
+            .mapToObj(index -> contentArray.getJSONObject(index).optString("userId"))
+            .collect(Collectors.toList());
+  }
   public  List<String> extractUserNames(String responseString) {
 
     if (responseString == null || responseString.isEmpty()) {
