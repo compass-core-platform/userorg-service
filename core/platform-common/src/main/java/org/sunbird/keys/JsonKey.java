@@ -671,5 +671,6 @@ public final class JsonKey {
   public static final String FRAMEWORK_ID = "framework.id";
   public static final String CONFIG = "config";
   public static final String TEMPLATE = "template";
+  public static final String USERID = "userID";
   private JsonKey() {}
 }
