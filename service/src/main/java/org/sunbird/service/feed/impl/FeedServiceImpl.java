@@ -113,19 +113,31 @@ public class FeedServiceImpl implements IFeedService {
     Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
     Map<String, Object> templateConfig = (Map<String, Object>) template.get(JsonKey.CONFIG);
     Map<String, Object> params = (Map<String, Object>) template.get(JsonKey.PARAMS);
+    if (params==null || params.isEmpty()) {
+      params = new HashMap<>();
+    }
 
     Map<String, Object> newTemplate = new HashMap<>();
     newTemplate.put(JsonKey.CONFIG, templateConfig);
     newTemplate.put(JsonKey.TYPE, template.get(JsonKey.TYPE));
     newTemplate.put(JsonKey.DATA, template.get(JsonKey.DATA));
     newTemplate.put(JsonKey.ID, template.get(JsonKey.ID));
+    params.put(JsonKey.FROM_EMAIL,"gohila.mariappan@tarento.com");
     newTemplate.put(JsonKey.PARAMS, params);
 
     Map<String, Object> newAction = new HashMap<>();
     newAction.put(JsonKey.TEMPLATE, newTemplate);
     newAction.put(JsonKey.TYPE, action.get(JsonKey.TYPE));
     newAction.put(JsonKey.CATEGORY, action.get(JsonKey.CATEGORY));
-    newAction.put(JsonKey.CREATED_BY, action.get(JsonKey.CREATED_BY));
+    Map<String,Object> created_BY= (Map<String, Object>) action.get(JsonKey.CREATED_BY);
+    if (created_BY==null || created_BY.isEmpty()) {
+      created_BY = new HashMap<>();
+      created_BY.put(JsonKey.TYPE,JsonKey.USER);
+      created_BY.put(JsonKey.ID,JsonKey.USERID);
+    } else {
+      created_BY.put(JsonKey.ID,JsonKey.USERID);
+    }
+    newAction.put(JsonKey.CREATED_BY, created_BY);
 
     Map<String, Object> notification = new HashMap<>();
     notification.put(JsonKey.TYPE, data.get(JsonKey.TYPE));
