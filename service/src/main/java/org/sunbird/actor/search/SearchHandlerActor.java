@@ -546,6 +546,7 @@ public class SearchHandlerActor extends BaseActor {
           throws Exception {
 
     String searchUrl = PropertiesCache.getInstance().getProperty("compass.user.search.api.url");
+    logger.info("searchUrl for getDepartmentList:"+searchUrl);
 
     Map<String, Object> requestMap = new HashMap<>();
     Map<String, Object> filters = new HashMap<>();
@@ -555,12 +556,17 @@ public class SearchHandlerActor extends BaseActor {
     requestMap.put(JsonKey.LIMIT, searchQueryMap.get("limit"));
     requestForUserSearch.put(JsonKey.REQUEST,requestMap);
 
+    logger.info("request for searchUrl:"+requestForUserSearch.getRequest());
+
     Map<String, String> header = (Map<String, String>) request.getContext().get(JsonKey.HEADER);
     Map<String, String> headers = Map.of(
             "Content-Type", "application/json",
             JsonKey.X_AUTHENTICATED_USER_TOKEN,header.get(JsonKey.X_AUTH_USER_TOKEN),
             JsonKey.AUTHORIZATION, header.get(JsonKey.AUTHORIZATION)
     );
+
+    logger.info("headers for search url:"+headers.get(JsonKey.AUTHORIZATION));
+    logger.info("headers for search url:"+headers.get(JsonKey.X_AUTH_USER_TOKEN));
 
     Gson gson = new Gson();
     String requestBody = gson.toJson(requestForUserSearch.getRequest());
@@ -570,6 +576,7 @@ public class SearchHandlerActor extends BaseActor {
             .body(requestBody)
             .asString();
 
+    logger.info("response from search url:"+userSearchResponse.getStatus());
     String jsonString = userSearchResponse.getBody();
 
     JSONObject responseObj = new JSONObject(jsonString);
