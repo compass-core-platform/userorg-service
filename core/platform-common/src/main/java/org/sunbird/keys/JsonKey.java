@@ -65,6 +65,7 @@ public final class JsonKey {
   public static final String CREATED_DATE = "createdDate";
   public static final String CURRENT_STATE = "CURRENT_STATE";
   public static final String DATA = "data";
+  public static final String MAILDATA = "mailData";
   public static final String KEY = "key";
   public static final String KEYS = "keys";
   public static final String DATE_HISTOGRAM = "DATE_HISTOGRAM";
