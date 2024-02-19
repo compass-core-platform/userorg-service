@@ -95,20 +95,23 @@ public class FeedServiceImpl implements IFeedService {
     String userNames = HttpClientUtil.post(URL,body,null,context);
     logger.info("printing userNames  "+userNames);
     List<String> mailIds = extractUserNames(userNames);
+    List<String> userIds = extractUserIds(userNames);
     logger.info("printing mailIds  "+mailIds);
+    logger.info("printing userIds  "+userIds);
     //ToDo for testing purpose after testing will remove
     List<String> emailIds = List.of("anilkumar.kammalapalli@tarento.com","santhosh.kumar@tarento.com");
     Map<String, Object> notification = buildNotification(requestData, emailIds);
     Request newRequest = buildRequest(notification);
 
     logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notification);
-
+    Response response = feedNotification(notification,userIds,context);
+    logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
     return serviceClient.sendSyncV2NotificationV2(newRequest, context);
   }
 
 
   private Map<String, Object> buildNotification(Map<String, Object> requestData, List<String> emailIds) {
-    Map<String, Object> data = (Map<String, Object>) requestData.get(JsonKey.MAILDATA);
+    Map<String, Object> data = (Map<String, Object>) requestData.get(JsonKey.DATA);
     Map<String, Object> action = (Map<String, Object>) data.get(JsonKey.ACTION);
     Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
     Map<String, Object> templateConfig = (Map<String, Object>) template.get(JsonKey.CONFIG);
@@ -224,6 +227,27 @@ public class FeedServiceImpl implements IFeedService {
     newRequest.setRequest(reqObj);
 
     return newRequest;
+  }
+
+  public Response feedNotification(Map<String,Object> notification, List<String> userIds, RequestContext context) {
+    logger.info(context, "feedNotification:NOTIFICATIONS: "+notification);
+    logger.info(context, "feedNotification:userIds: "+userIds);
+    Request req = new Request();
+    Map<String,Object> notifications = new HashMap<>();
+    Map<String, Object> reqObj = new HashMap<>();
+    Map<String, Object> dataMap = new HashMap<>();
+
+    reqObj.put(JsonKey.USERID, userIds);
+    reqObj.put(JsonKey.CATEGORY, JsonKey.USER_FEED_DB);
+    reqObj.put(JsonKey.PRIORITY, 1);
+
+    dataMap.put(JsonKey.DATAVALUE,(String) notification.get(JsonKey.DATAVALUE));
+    reqObj.put(JsonKey.DATA, dataMap);
+    notifications.put(JsonKey.NOTIFICATIONS,Arrays.asList(reqObj));
+    req.setRequest(notifications);
+    logger.info(context, "feedNotification:NOTIFICATIONS: "+reqObj);
+    return serviceClient.sendSyncV2Notification(req,context);
+
   }
 
 }
