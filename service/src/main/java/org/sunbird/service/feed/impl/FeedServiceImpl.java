@@ -104,7 +104,7 @@ public class FeedServiceImpl implements IFeedService {
     Request newRequest = buildRequest(notification);
 
     logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notification);
-    Response response = feedNotification(notification,userIds,context);
+    Response response = feedNotification(requestData,userIds,context);
     logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
     return serviceClient.sendSyncV2NotificationV2(newRequest, context);
   }
@@ -230,7 +230,7 @@ public class FeedServiceImpl implements IFeedService {
   }
 
   public Response feedNotification(Map<String,Object> notification, List<String> userIds, RequestContext context) {
-    logger.info(context, "feedNotification:NOTIFICATIONS: "+notification);
+    logger.info(context, "feedNotification:NOTIFICATIONS: data "+notification);
     logger.info(context, "feedNotification:userIds: "+userIds);
     Request req = new Request();
     Map<String,Object> notifications = new HashMap<>();
