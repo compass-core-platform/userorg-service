@@ -108,7 +108,7 @@ public class FeedServiceImpl implements IFeedService {
 
 
   private Map<String, Object> buildNotification(Map<String, Object> requestData, List<String> emailIds) {
-    Map<String, Object> data = (Map<String, Object>) requestData.get(JsonKey.DATA);
+    Map<String, Object> data = (Map<String, Object>) requestData.get(JsonKey.MAILDATA);
     Map<String, Object> action = (Map<String, Object>) data.get(JsonKey.ACTION);
     Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
     Map<String, Object> templateConfig = (Map<String, Object>) template.get(JsonKey.CONFIG);
