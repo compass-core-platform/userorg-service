@@ -239,7 +239,7 @@ public class FeedServiceImpl implements IFeedService {
 
 //    reqObj.put(JsonKey.USERID, userIds);
     //TODO For Testing purpose will remove onces api is integrated.
-    reqObj.put(JsonKey.USERID, Arrays.asList("fe6e381c-7488-452c-8aab-40053361f23c"));
+    reqObj.put("userId", Arrays.asList("fe6e381c-7488-452c-8aab-40053361f23c"));
     reqObj.put(JsonKey.CATEGORY, JsonKey.USER_FEED_DB);
     reqObj.put(JsonKey.PRIORITY, 1);
 
