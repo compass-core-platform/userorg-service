@@ -11,6 +11,8 @@ import java.util.List;
 public final class JsonKey {
   public static final String ANONYMOUS = "Anonymous";
   public static final String AUTHORIZATION = "Authorization";
+  public static final String authorization = "authorization";
+
   public static final String UNAUTHORIZED = "Unauthorized";
   public static final String AUTH_ENABLED = "AuthenticationEnabled";
   public static final String ACCOUNT_KEY = "sunbird_account_key";
