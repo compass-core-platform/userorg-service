@@ -556,20 +556,25 @@ public class SearchHandlerActor extends BaseActor {
     requestMap.put(JsonKey.LIMIT, searchQueryMap.get("limit"));
     requestForUserSearch.put(JsonKey.REQUEST,requestMap);
 
-    logger.info("request for searchUrl:"+requestForUserSearch.getRequest());
+    logger.info("request for searchUrl before:"+requestForUserSearch.getRequest());
 
     Map<String, String> header = (Map<String, String>) request.getContext().get(JsonKey.HEADER);
+
+    logger.info("headers for search url:"+request.getContext());
+    logger.info("headers for search url:"+header);
+    logger.info("headers for search url:"+header.get(JsonKey.AUTHORIZATION));
+    logger.info("headers for search url:"+header.get(JsonKey.X_AUTH_USER_TOKEN));
+
     Map<String, String> headers = Map.of(
             "Content-Type", "application/json",
             JsonKey.X_AUTHENTICATED_USER_TOKEN,header.get(JsonKey.X_AUTH_USER_TOKEN),
-            JsonKey.AUTHORIZATION, header.get(JsonKey.AUTHORIZATION)
+            JsonKey.AUTHORIZATION, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI0WEFsdFpGMFFhc1JDYlFnVXB4b2RvU2tLRUZyWmdpdCJ9.mXD7cSvv3Le6o_32lJplDck2D0IIMHnv0uJKq98YVwk"
     );
 
-    logger.info("headers for search url:"+headers.get(JsonKey.AUTHORIZATION));
-    logger.info("headers for search url:"+headers.get(JsonKey.X_AUTH_USER_TOKEN));
 
     Gson gson = new Gson();
     String requestBody = gson.toJson(requestForUserSearch.getRequest());
+    logger.info("request for searchUrl after:"+requestForUserSearch.getRequest());
 
     HttpResponse<String> userSearchResponse = Unirest.post(searchUrl)
             .headers(headers)
