@@ -472,4 +472,21 @@ public class UserController extends BaseController {
         true,
         httpRequest);
   }
+
+    public CompletionStage<Result> getUserCountAndDepartmentList(Http.Request httpRequest) {
+        final String requestedFields = httpRequest.getQueryString(JsonKey.FIELDS);
+        return handleSearchRequest(
+                searchHandlerActor,
+                ActorOperations.USER_DEPARTMENT.getValue(),
+                httpRequest.body().asJson(),
+                userSearchRequest -> {
+                    Request request = (Request) userSearchRequest;
+                    return null;
+                },
+                null,
+                null,
+                getAllRequestHeaders(httpRequest),
+                ProjectUtil.EsType.user.getTypeName(),
+                httpRequest);
+    }
 }

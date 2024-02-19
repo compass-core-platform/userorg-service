@@ -106,6 +106,7 @@ public enum ActorOperations {
 
     USER_SEARCH("userSearch", "USRSER"),
     USER_SEARCH_V2("userSearchV2", "USRSER"),
+    USER_DEPARTMENT("userDepartment", "USRDEP"),
     USER_SEARCH_V3("userSearchV3", "USRSER"),
     ORG_SEARCH("orgSearch", "ORGSER"),
     ORG_SEARCH_V2("orgSearchV2", "ORGSER"),
