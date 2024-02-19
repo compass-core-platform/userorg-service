@@ -104,7 +104,7 @@ public class FeedServiceImpl implements IFeedService {
     Request newRequest = buildRequest(notification);
 
     logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notification);
-    Response response = feedNotification(notification,userIds,context);
+    Response response = feedNotification(requestData,userIds,context);
     logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
     return serviceClient.sendSyncV2NotificationV2(newRequest, context);
   }
@@ -230,14 +230,16 @@ public class FeedServiceImpl implements IFeedService {
   }
 
   public Response feedNotification(Map<String,Object> notification, List<String> userIds, RequestContext context) {
-    logger.info(context, "feedNotification:NOTIFICATIONS: "+notification);
+    logger.info(context, "feedNotification:NOTIFICATIONS: data "+notification);
     logger.info(context, "feedNotification:userIds: "+userIds);
     Request req = new Request();
     Map<String,Object> notifications = new HashMap<>();
     Map<String, Object> reqObj = new HashMap<>();
     Map<String, Object> dataMap = new HashMap<>();
 
-    reqObj.put(JsonKey.USERID, userIds);
+//    reqObj.put(JsonKey.USERID, userIds);
+    //TODO For Testing purpose will remove onces api is integrated.
+    reqObj.put(JsonKey.USERID, Arrays.asList("fe6e381c-7488-452c-8aab-40053361f23c"));
     reqObj.put(JsonKey.CATEGORY, JsonKey.USER_FEED_DB);
     reqObj.put(JsonKey.PRIORITY, 1);
 
