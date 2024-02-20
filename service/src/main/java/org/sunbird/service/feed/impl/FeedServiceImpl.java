@@ -100,55 +100,61 @@ public class FeedServiceImpl implements IFeedService {
     logger.info("printing userIds  "+userIds);
     //ToDo for testing purpose after testing will remove
     List<String> emailIds = List.of("anilkumar.kammalapalli@tarento.com","santhosh.kumar@tarento.com");
-    Map<String, Object> notification = buildNotification(requestData, emailIds);
-    Request newRequest = buildRequest(notification);
+    List<Map<String, Object>> notifications = buildNotification(requestData, emailIds);
+    Request newRequest = buildRequest(notifications);
 
-    logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notification);
+    logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notifications);
     Response response = feedNotification(requestData,userIds,context);
     logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
     return serviceClient.sendSyncV2NotificationV2(newRequest, context);
   }
 
 
-  private Map<String, Object> buildNotification(Map<String, Object> requestData, List<String> emailIds) {
-    Map<String, Object> data = (Map<String, Object>) requestData.get(JsonKey.DATA);
-    Map<String, Object> action = (Map<String, Object>) data.get(JsonKey.ACTION);
-    Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
-    Map<String, Object> templateConfig = (Map<String, Object>) template.get(JsonKey.CONFIG);
-    Map<String, Object> params = (Map<String, Object>) template.get(JsonKey.PARAMS);
-    if (params==null || params.isEmpty()) {
-      params = new HashMap<>();
+  private List<Map<String, Object>> buildNotification(Map<String, Object> requestData, List<String> emailIds) {
+
+    //Map<String, Object> data = (Map<String, Object>) requestData.get(JsonKey.DATA);
+    List<Map<String, Object>> dataList = (List<Map<String, Object>>) requestData.get(JsonKey.DATA);
+    List<Map<String, Object>> notificationList = new ArrayList<>();
+
+    for (Map<String, Object> data:dataList) {
+      Map<String, Object> action = (Map<String, Object>) data.get(JsonKey.ACTION);
+      Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
+      Map<String, Object> templateConfig = (Map<String, Object>) template.get(JsonKey.CONFIG);
+      Map<String, Object> params = (Map<String, Object>) template.get(JsonKey.PARAMS);
+      if (params == null || params.isEmpty()) {
+        params = new HashMap<>();
+      }
+
+      Map<String, Object> newTemplate = new HashMap<>();
+      newTemplate.put(JsonKey.CONFIG, templateConfig);
+      newTemplate.put(JsonKey.TYPE, template.get(JsonKey.TYPE));
+      newTemplate.put(JsonKey.DATA, template.get(JsonKey.DATA));
+      newTemplate.put(JsonKey.ID, template.get(JsonKey.ID));
+      params.put(JsonKey.FROM_EMAIL, "gohila.mariappan@tarento.com");
+      newTemplate.put(JsonKey.PARAMS, params);
+
+      Map<String, Object> newAction = new HashMap<>();
+      newAction.put(JsonKey.TEMPLATE, newTemplate);
+      newAction.put(JsonKey.TYPE, action.get(JsonKey.TYPE));
+      newAction.put(JsonKey.CATEGORY, action.get(JsonKey.CATEGORY));
+      Map<String, Object> created_BY = (Map<String, Object>) action.get(JsonKey.CREATED_BY);
+      if (created_BY == null || created_BY.isEmpty()) {
+        created_BY = new HashMap<>();
+        created_BY.put(JsonKey.TYPE, JsonKey.USER);
+        created_BY.put(JsonKey.ID, JsonKey.USERID);
+      } else {
+        created_BY.put(JsonKey.ID, JsonKey.USERID);
+      }
+      newAction.put(JsonKey.CREATED_BY, created_BY);
+
+      Map<String, Object> notification = new HashMap<>();
+      notification.put(JsonKey.TYPE, data.get(JsonKey.TYPE));
+      notification.put(JsonKey.PRIORITY, 1);
+      notification.put(JsonKey.ACTION, newAction);
+      notification.put(JsonKey.IDS, emailIds);
+      notificationList.add(notification);
     }
-
-    Map<String, Object> newTemplate = new HashMap<>();
-    newTemplate.put(JsonKey.CONFIG, templateConfig);
-    newTemplate.put(JsonKey.TYPE, template.get(JsonKey.TYPE));
-    newTemplate.put(JsonKey.DATA, template.get(JsonKey.DATA));
-    newTemplate.put(JsonKey.ID, template.get(JsonKey.ID));
-    params.put(JsonKey.FROM_EMAIL,"gohila.mariappan@tarento.com");
-    newTemplate.put(JsonKey.PARAMS, params);
-
-    Map<String, Object> newAction = new HashMap<>();
-    newAction.put(JsonKey.TEMPLATE, newTemplate);
-    newAction.put(JsonKey.TYPE, action.get(JsonKey.TYPE));
-    newAction.put(JsonKey.CATEGORY, action.get(JsonKey.CATEGORY));
-    Map<String,Object> created_BY= (Map<String, Object>) action.get(JsonKey.CREATED_BY);
-    if (created_BY==null || created_BY.isEmpty()) {
-      created_BY = new HashMap<>();
-      created_BY.put(JsonKey.TYPE,JsonKey.USER);
-      created_BY.put(JsonKey.ID,JsonKey.USERID);
-    } else {
-      created_BY.put(JsonKey.ID,JsonKey.USERID);
-    }
-    newAction.put(JsonKey.CREATED_BY, created_BY);
-
-    Map<String, Object> notification = new HashMap<>();
-    notification.put(JsonKey.TYPE, data.get(JsonKey.TYPE));
-    notification.put(JsonKey.PRIORITY, 1);
-    notification.put(JsonKey.ACTION, newAction);
-    notification.put(JsonKey.IDS, emailIds);
-
-    return notification;
+    return notificationList;
   }
 
   public String buildUserSearchRequestBody(Map<String, Object> request) {
@@ -219,9 +225,10 @@ public class FeedServiceImpl implements IFeedService {
             .collect(Collectors.toList());
   }
 
-  private Request buildRequest(Map<String, Object> notification) {
+  private Request buildRequest(List<Map<String, Object>> notifications) {
     Map<String, Object> reqObj = new HashMap<>();
-    reqObj.put("notifications", Arrays.asList(notification));
+//    reqObj.put("notifications", Arrays.asList(notification));
+    reqObj.put("notifications", notifications);
 
     Request newRequest = new Request();
     newRequest.setRequest(reqObj);
