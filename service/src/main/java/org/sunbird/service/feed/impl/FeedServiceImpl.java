@@ -149,7 +149,7 @@ public class FeedServiceImpl implements IFeedService {
 
       Map<String, Object> notification = new HashMap<>();
       notification.put(JsonKey.TYPE, data.get(JsonKey.TYPE));
-      notification.put(JsonKey.PRIORITY, 1);
+      notification.put(JsonKey.PRIORITY, data.get(JsonKey.PRIORITY));
       notification.put(JsonKey.ACTION, newAction);
       notification.put(JsonKey.IDS, emailIds);
       notificationList.add(notification);
