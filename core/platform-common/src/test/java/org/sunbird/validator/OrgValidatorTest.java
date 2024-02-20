@@ -30,6 +30,7 @@ import org.sunbird.validator.orgvalidator.OrgRequestValidator;
   "javax.security.*",
   "jdk.internal.reflect.*"
 })
+@SuppressWarnings("illegal-access")
 public class OrgValidatorTest {
 
   @Test
