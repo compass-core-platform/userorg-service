@@ -100,7 +100,7 @@ public class FeedServiceImpl implements IFeedService {
     logger.info("printing userIds  "+userIds);
     //ToDo for testing purpose after testing will remove
     List<String> emailIds = List.of("anilkumar.kammalapalli@tarento.com","santhosh.kumar@tarento.com");
-    List<Map<String, Object>> notifications = buildNotification(requestData, emailIds);
+    List<Map<String, Object>> notifications = buildNotification(requestData, mailIds);
     Request newRequest = buildRequest(notifications);
 
     logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notifications);
@@ -244,9 +244,9 @@ public class FeedServiceImpl implements IFeedService {
     Map<String, Object> reqObj = new HashMap<>();
     Map<String, Object> dataMap = new HashMap<>();
 
-//    reqObj.put(JsonKey.USERID, userIds);
+    reqObj.put(JsonKey.USERID, userIds);
     //TODO For Testing purpose will remove onces api is integrated.
-    reqObj.put("userId", Arrays.asList("fe6e381c-7488-452c-8aab-40053361f23c"));
+//    reqObj.put("userId", Arrays.asList("fe6e381c-7488-452c-8aab-40053361f23c"));
     reqObj.put(JsonKey.CATEGORY, JsonKey.USER_FEED_DB);
     reqObj.put(JsonKey.PRIORITY, 1);
 
