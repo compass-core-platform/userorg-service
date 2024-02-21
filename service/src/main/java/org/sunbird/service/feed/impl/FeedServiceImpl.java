@@ -91,6 +91,7 @@ public class FeedServiceImpl implements IFeedService {
 
     Map<String, Object> requestData = (Map<String, Object>) request.getRequest();
     String body = buildUserSearchRequestBody(requestData);
+    logger.info("user search request body :: "+body);
     String URL = learner_BASE_URL + USER_SEARCH_URL;
     String userNames = HttpClientUtil.post(URL,body,null,context);
     logger.info("printing userNames  "+userNames);
