@@ -673,5 +673,8 @@ public final class JsonKey {
   public static final String CONFIG = "config";
   public static final String TEMPLATE = "template";
   public static final String USERID = "userID";
+  public static final String SUNBIRD_NOTIFICATIONS = "sunbird_notifications";
+  public static final String SCHEDULE_NOTIFICATIONS   = "schedule_notifications";
+  public static final String NOTIFICATIONID = "notificationId";
   private JsonKey() {}
 }
