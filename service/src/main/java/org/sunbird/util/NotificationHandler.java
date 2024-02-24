@@ -47,6 +47,7 @@ public class NotificationHandler implements Runnable {
             if (scheduleTime != null) {
                 LocalDateTime scheduleDateTime = scheduleTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 if (scheduleDateTime.isBefore(currentDateTime) || scheduleDateTime.isEqual(currentDateTime)) {
+                        logger.info("processNotification with schedule time in the future: " +notification.get("id"));
                         processNotification(notification);
                 } else {
                     logger.info("Skipping notification with schedule time in the future: " + scheduleTime);
@@ -68,15 +69,16 @@ public class NotificationHandler implements Runnable {
     public void processNotification(Map<String,Object> notification) {
         try {
             List<Map<String, Object>> dataList = objectMapper.readValue((String) notification.get("data"), new TypeReference<List<Map<String, Object>>>() {});
-
+            logger.info("user feed dataList :: "+dataList);
             Map<String, List<String>> filters = objectMapper.readValue((String) notification.get("filters"), new TypeReference<Map<String, List<String>>>() {});
-
+            logger.info("user feed filters :: "+filters);
             Map<String, Object> request = new HashMap<>();
             request.put("data", dataList);
             request.put("filters", filters);
             request.put("dataValue",notification.getOrDefault("dataValue",""));
             request.put("notificationId",notification.getOrDefault("id",""));
             String requestJson = objectMapper.writeValueAsString(request);
+            logger.info("user feed payload :: "+requestJson);
             String response = HttpClientUtil.post(LEARNING_SERVICE_URL,requestJson,null,null);
             logger.info("response "+response);
 
