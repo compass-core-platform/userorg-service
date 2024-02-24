@@ -22,7 +22,7 @@ public class NotificationHandler implements Runnable {
     private static final LoggerUtil logger = new LoggerUtil(NotificationHandler.class);
     private static final ScheduledExecutorService scheduler = ExecutorManager.getExecutorService();
     private CassandraOperation cassandraOperation = ServiceFactory.getInstance();
-    private final String LEARNING_SERVICE_URL =  "http://learner-service:9000/v2/user/feed/create";
+    private final String LEARNING_SERVICE_URL =  "http://learner-service:9000/private/user/feed/v2/create";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
 
