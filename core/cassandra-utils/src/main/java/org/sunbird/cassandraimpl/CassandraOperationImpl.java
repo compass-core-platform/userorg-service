@@ -238,6 +238,7 @@ public abstract class CassandraOperationImpl implements CassandraOperation {
             selectWhere.and(clause);
           }
         }
+        selectWhere.allowFiltering();
       }
       ResultSet results = connectionManager.getSession(keyspaceName).execute(selectQuery);
       response = CassandraUtil.createResponse(results);
