@@ -146,7 +146,7 @@ public class FeedServiceImpl implements IFeedService {
     //Map<String, Object> data = (Map<String, Object>) requestData.get(JsonKey.DATA);
     List<Map<String, Object>> dataList = (List<Map<String, Object>>) requestData.get(JsonKey.DATA);
     List<Map<String, Object>> notificationList = new ArrayList<>();
-
+    logger.info("size of the data "+dataList.size());
     for (Map<String, Object> data:dataList) {
       Map<String, Object> action = (Map<String, Object>) data.get(JsonKey.ACTION);
       Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
@@ -161,7 +161,7 @@ public class FeedServiceImpl implements IFeedService {
       newTemplate.put(JsonKey.TYPE, template.get(JsonKey.TYPE));
       newTemplate.put(JsonKey.DATA, template.get(JsonKey.DATA));
       newTemplate.put(JsonKey.ID, template.get(JsonKey.ID));
-      newTemplate.put(JsonKey.NOTIFICATIONID, template.getOrDefault(JsonKey.NOTIFICATIONID,""));
+      newTemplate.put(JsonKey.NOTIFICATIONID, requestData.getOrDefault(JsonKey.NOTIFICATIONID,""));
       params.put(JsonKey.FROM_EMAIL, "gohila.mariappan@tarento.com");
       newTemplate.put(JsonKey.PARAMS, params);
 
