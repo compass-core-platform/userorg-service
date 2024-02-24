@@ -2,6 +2,10 @@ package org.sunbird.service.feed.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -11,6 +15,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sunbird.client.NotificationServiceClient;
+import org.sunbird.dao.notification.ScheduleNotificationDao;
+import org.sunbird.dao.notification.impl.ScheduleNotificationDaoImpl;
 import org.sunbird.exception.ProjectCommonException;
 import org.sunbird.exception.ResponseCode;
 import org.sunbird.http.HttpClientUtil;
@@ -21,11 +27,15 @@ import org.sunbird.request.Request;
 import org.sunbird.request.RequestContext;
 import org.sunbird.response.Response;
 import org.sunbird.service.feed.IFeedService;
+import org.sunbird.service.user.UserService;
+import org.sunbird.service.user.impl.UserServiceImpl;
 
 public class FeedServiceImpl implements IFeedService {
   private final LoggerUtil logger = new LoggerUtil(FeedServiceImpl.class);
   private final ObjectMapper mapper = new ObjectMapper();
   private NotificationServiceClient serviceClient;
+  private final ScheduleNotificationDao scheduleNotificationDao = ScheduleNotificationDaoImpl.getInstance();
+  ObjectMapper objectMapper = new ObjectMapper();
 
   private String learner_BASE_URL = "http://learner-service:9000";
   private String USER_SEARCH_URL = "/private/user/v1/search";
@@ -90,24 +100,44 @@ public class FeedServiceImpl implements IFeedService {
     logger.info(context, "FeedServiceImpl:insert method called");
 
     Map<String, Object> requestData = (Map<String, Object>) request.getRequest();
-    String body = buildUserSearchRequestBody(requestData);
-    logger.info("user search request body :: "+body);
-    String URL = learner_BASE_URL + USER_SEARCH_URL;
-    String userNames = HttpClientUtil.post(URL,body,null,context);
-    logger.info("printing userNames  "+userNames);
-    List<String> mailIds = extractUserNames(userNames);
-    List<String> userIds = extractUserIds(userNames);
-    logger.info("printing mailIds  "+mailIds);
-    logger.info("printing userIds  "+userIds);
-    //ToDo for testing purpose after testing will remove
-    List<String> emailIds = List.of("anilkumar.kammalapalli@tarento.com","santhosh.kumar@tarento.com");
-    List<Map<String, Object>> notifications = buildNotification(requestData, mailIds);
-    Request newRequest = buildRequest(notifications);
+    Boolean isScheduled = (Boolean) requestData.getOrDefault("isScheduleNotification",Boolean.valueOf(false));
+      if (isScheduled) {
+          String scheduleTime = (String) requestData.getOrDefault("scheduleTime", ZonedDateTime.now().toString());
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSXX");
+          Instant instant = Instant.from(formatter.parse(scheduleTime));
+          Date date = Date.from(instant);
+          List<Map<String, Object>> dataList = (List<Map<String, Object>>) requestData.get(JsonKey.DATA);
+          Map<String, Object> requestFilters = (Map<String, Object>) requestData.get("filters");
+          requestData.put("is_delivered",Boolean.valueOf(Boolean.FALSE));
+          try {
+            requestData.put("data",objectMapper.writeValueAsString(dataList));
+            requestData.put("filters",objectMapper.writeValueAsString(requestFilters));
+          } catch (Exception e) {
+            logger.error(context,"Error occurred while serializing dataList to JSON: {}", e);
+          }
+          requestData.put("scheduleTime",date);
+          requestData.put("id",UUID.randomUUID().toString());
+          String audience = (String) requestData.getOrDefault("audience", "");
+          String title = (String) requestData.getOrDefault("title", "");
+          return scheduleNotificationDao.saveScheduledNotificationDetails(requestData,context);
+      } else {
+        String body = buildUserSearchRequestBody(requestData);
+        logger.info("user search request body :: " + body);
+        String URL = learner_BASE_URL + USER_SEARCH_URL;
+        String userNames = HttpClientUtil.post(URL, body, null, context);
+        logger.info("printing userNames  " + userNames);
+        List<String> mailIds = extractUserNames(userNames);
+        List<String> userIds = extractUserIds(userNames);
+        logger.info("printing mailIds  " + mailIds);
+        logger.info("printing userIds  " + userIds);
+        List<Map<String, Object>> notifications = buildNotification(requestData, mailIds);
+        Request newRequest = buildRequest(notifications);
 
-    logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notifications);
-    Response response = feedNotification(requestData,userIds,context);
-    logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
-    return serviceClient.sendSyncV2NotificationV2(newRequest, context);
+        logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notifications);
+        Response response = feedNotification(requestData, userIds, context);
+        logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
+        return serviceClient.sendSyncV2NotificationV2(newRequest, context);
+      }
   }
 
 
@@ -131,6 +161,7 @@ public class FeedServiceImpl implements IFeedService {
       newTemplate.put(JsonKey.TYPE, template.get(JsonKey.TYPE));
       newTemplate.put(JsonKey.DATA, template.get(JsonKey.DATA));
       newTemplate.put(JsonKey.ID, template.get(JsonKey.ID));
+      newTemplate.put(JsonKey.NOTIFICATIONID, template.getOrDefault(JsonKey.NOTIFICATIONID,""));
       params.put(JsonKey.FROM_EMAIL, "gohila.mariappan@tarento.com");
       newTemplate.put(JsonKey.PARAMS, params);
 
