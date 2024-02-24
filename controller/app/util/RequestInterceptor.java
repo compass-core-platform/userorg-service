@@ -93,6 +93,7 @@ public class RequestInterceptor {
     apiHeaderIgnoreMap.put("/private/user/feed/v1/create", var);
     apiHeaderIgnoreMap.put("/private/v2/org/search", var);
     apiHeaderIgnoreMap.put("/private/v2/org/preferences/read", var);
+    apiHeaderIgnoreMap.put("/private/user/feed/v2/create", var);
   }
 
   private static String getUserRequestedFor(Http.Request request) {
