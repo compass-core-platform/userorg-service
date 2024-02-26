@@ -77,6 +77,7 @@ public class NotificationHandler implements Runnable {
             request.put("filters", filters);
             request.put("dataValue",notification.getOrDefault("dataValue",""));
             request.put("notificationId",notification.getOrDefault("id",""));
+            logger.info("user feed request ::: "+request);
             String requestJson = objectMapper.writeValueAsString(request);
             logger.info("user feed payload :: "+requestJson);
             String response = HttpClientUtil.post(LEARNING_SERVICE_URL,requestJson,null,null);
