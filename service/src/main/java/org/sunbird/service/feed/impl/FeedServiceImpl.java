@@ -157,7 +157,7 @@ public class FeedServiceImpl implements IFeedService {
 
     logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notifications);
     Response response = feedNotification(requestData, userIds, context);
-    logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
+    logger.info(context, "FeedServiceImpl:feedNotification:result: " + response.getResult());
     return serviceClient.sendSyncV2NotificationV2(newRequest, context);
   }
 
