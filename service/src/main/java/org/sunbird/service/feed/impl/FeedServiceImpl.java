@@ -100,44 +100,70 @@ public class FeedServiceImpl implements IFeedService {
     logger.info(context, "FeedServiceImpl:insert method called");
 
     Map<String, Object> requestData = (Map<String, Object>) request.getRequest();
-    Boolean isScheduled = (Boolean) requestData.getOrDefault("isScheduleNotification",Boolean.valueOf(false));
-      if (isScheduled) {
-          String scheduleTime = (String) requestData.getOrDefault("scheduleTime", ZonedDateTime.now().toString());
-          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSXX");
-          Instant instant = Instant.from(formatter.parse(scheduleTime));
-          Date date = Date.from(instant);
-          List<Map<String, Object>> dataList = (List<Map<String, Object>>) requestData.get(JsonKey.DATA);
-          Map<String, Object> requestFilters = (Map<String, Object>) requestData.get("filters");
-          requestData.put("is_delivered",Boolean.valueOf(Boolean.FALSE));
-          try {
-            requestData.put("data",objectMapper.writeValueAsString(dataList));
-            requestData.put("filters",objectMapper.writeValueAsString(requestFilters));
-          } catch (Exception e) {
-            logger.error(context,"Error occurred while serializing dataList to JSON: {}", e);
-          }
-          requestData.put("scheduleTime",date);
-          requestData.put("id",UUID.randomUUID().toString());
-          String audience = (String) requestData.getOrDefault("audience", "");
-          String title = (String) requestData.getOrDefault("title", "");
-          return scheduleNotificationDao.saveScheduledNotificationDetails(requestData,context);
-      } else {
-        String body = buildUserSearchRequestBody(requestData);
-        logger.info("user search request body :: " + body);
-        String URL = learner_BASE_URL + USER_SEARCH_URL;
-        String userNames = HttpClientUtil.post(URL, body, null, context);
-        logger.info("printing userNames  " + userNames);
-        List<String> mailIds = extractUserNames(userNames);
-        List<String> userIds = extractUserIds(userNames);
-        logger.info("printing mailIds  " + mailIds);
-        logger.info("printing userIds  " + userIds);
-        List<Map<String, Object>> notifications = buildNotification(requestData, mailIds);
-        Request newRequest = buildRequest(notifications);
+    boolean isScheduled = (boolean) requestData.getOrDefault("isScheduleNotification", false);
 
-        logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notifications);
-        Response response = feedNotification(requestData, userIds, context);
-        logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
-        return serviceClient.sendSyncV2NotificationV2(newRequest, context);
+    if (isScheduled) {
+     return handleScheduledNotification(requestData, context);
+    } else {
+     return handleImmediateNotification(requestData, context);
+    }
+  }
+
+  private Response handleScheduledNotification(Map<String, Object> requestData, RequestContext context) {
+    logger.info("handleScheduledNotification started :: "+requestData);
+    try {
+      String scheduleTime = (String) requestData.getOrDefault("scheduleTime", ZonedDateTime.now().toString());
+      Instant instant = Instant.parse(scheduleTime);
+      Date date = Date.from(instant);
+
+      serializeDataToJson(requestData, "data");
+      serializeDataToJson(requestData, "filters");
+
+      requestData.put("scheduleTime", date);
+      requestData.put("id", UUID.randomUUID().toString());
+
+      String audience = (String) requestData.getOrDefault("audience", "");
+      String title = (String) requestData.getOrDefault("title", "");
+
+    } catch (Exception e) {
+      logger.error(context, "Error occurred while processing scheduled notification: {}", e);
+    }
+    return scheduleNotificationDao.saveScheduledNotificationDetails(requestData, context);
+  }
+
+  private void serializeDataToJson(Map<String, Object> requestData, String key) {
+    Object data = requestData.get(key);
+    if (data instanceof List) {
+      try {
+        logger.info("serializeDataToJson key :: "+data);
+        requestData.put(key, objectMapper.writeValueAsString(data));
+      } catch (JsonProcessingException e) {
+        logger.error(null,"Error occurred while serializing {} to JSON: {}", e);
       }
+    }
+  }
+
+  private Response handleImmediateNotification(Map<String, Object> requestData, RequestContext context) {
+    logger.info("handleImmediateNotification started :: "+requestData);
+    String body = buildUserSearchRequestBody(requestData);
+    logger.info("user search request body :: " + body);
+
+    String URL = learner_BASE_URL + USER_SEARCH_URL;
+    String userNames = HttpClientUtil.post(URL, body, null, context);
+    logger.info("printing userNames  " + userNames);
+
+    List<String> mailIds = extractUserNames(userNames);
+    List<String> userIds = extractUserIds(userNames);
+    logger.info("printing mailIds  " + mailIds);
+    logger.info("printing userIds  " + userIds);
+
+    List<Map<String, Object>> notifications = buildNotification(requestData, mailIds);
+    Request newRequest = buildRequest(notifications);
+
+    logger.info(context, "FeedServiceImpl:NOTIFICATIONS: " + notifications);
+    Response response = feedNotification(requestData, userIds, context);
+    logger.info(context, "FeedServiceImpl:feedNotification:response: " + response);
+    return serviceClient.sendSyncV2NotificationV2(newRequest, context);
   }
 
 
