@@ -10,6 +10,9 @@ import java.util.List;
  */
 public final class JsonKey {
   public static final String ANONYMOUS = "Anonymous";
+  public static final String AUTHORIZATION = "Authorization";
+  public static final String authorization = "authorization";
+
   public static final String UNAUTHORIZED = "Unauthorized";
   public static final String AUTH_ENABLED = "AuthenticationEnabled";
   public static final String ACCOUNT_KEY = "sunbird_account_key";
@@ -74,7 +77,10 @@ public final class JsonKey {
   public static final String DELETE = "delete";
   public static final String DESCRIPTION = "description";
   public static final String DOB = "dob";
+  public static final String DEPARTMENT ="department";
+  public static final String DEPARTMENTNAME ="departmentName";
   public static final String EDUCATION = "education";
+  public static final String EMPLOYMENTDETAILS = "employmentDetails";
   public static final String ANALYTICS_API_BASE_URL = "sunbird_analytics_api_base_url";
   public static final String SUNBIRD_CONTENT_SERVICE_API_BASE_URL =
       "sunbird_content_service_api_base_url";
@@ -377,6 +383,7 @@ public final class JsonKey {
   public static final String ROLE_LIST = "roleList";
   public static final String CALLER_ID = "callerId";
   public static final String USER_TYPE = "userType";
+  public static final String USERCOUNT  = "userCount";
   public static final String USER_SUB_TYPE = "userSubType";
   public static final String MANAGED_BY = "managedBy";
   public static final String MANAGED_FOR = "managedFor";
@@ -443,6 +450,7 @@ public final class JsonKey {
   public static final String SUNBIRD_RESET_PASS_MAIL_SUBJECT = "sunbird_reset_pass_mail_subject";
   public static final String X_AUTHENTICATED_USER_TOKEN = "x-authenticated-user-token";
   public static final String X_SOURCE_USER_TOKEN = "x-source-user-token";
+  public static final String X_AUTH_USER_TOKEN= "X-authenticated-user-token";
   public static final String SUNBIRD_SUBDOMAIN_KEYCLOAK_BASE_URL =
       "sunbird_subdomain_keycloak_base_url";
   public static final String ACTION = "action";

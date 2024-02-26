@@ -7,10 +7,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import com.google.gson.Gson;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.sunbird.actor.core.BaseActor;
 import org.sunbird.actor.organisation.validator.OrgTypeValidator;
 import org.sunbird.common.ElasticSearchHelper;
@@ -64,6 +70,9 @@ public class SearchHandlerActor extends BaseActor {
       case "orgSearch":
       case "orgSearchV2":
         handleOrgSearchAsyncRequest(searchQueryMap, request);
+        break;
+      case "userDepartment":
+        getDepartmentList(request,searchQueryMap);
         break;
       default:
         onReceiveUnsupportedOperation();
@@ -531,5 +540,76 @@ public class SearchHandlerActor extends BaseActor {
   private Map<String, Object> getFuzzyFilterMap(Map<String, Object> searchQueryMap) {
     return (Map<String, Object>)
         ((Map<String, Object>) (searchQueryMap.get(JsonKey.FILTERS))).get(JsonKey.SEARCH_FUZZY);
+  }
+
+  private void getDepartmentList(Request request, Map<String, Object> searchQueryMap)
+          throws Exception {
+
+    String searchUrl = PropertiesCache.getInstance().getProperty("compass.user.search.api.url");
+    logger.info("searchUrl for getDepartmentList:"+searchUrl);
+
+    Map<String, Object> requestMap = new HashMap<>();
+    Map<String, Object> filters = new HashMap<>();
+    Request requestForUserSearch = new Request();
+
+    requestMap.put(JsonKey.FILTERS, filters);
+    requestMap.put(JsonKey.LIMIT, searchQueryMap.get("limit"));
+    requestForUserSearch.put(JsonKey.REQUEST,requestMap);
+
+    Map<String, String> header = (Map<String, String>) request.getContext().get(JsonKey.HEADER);
+    logger.info("headers for search url:"+header);
+
+    Map<String, String> headers = Map.of(
+            "Content-Type", "application/json",
+            JsonKey.X_AUTH_USER_TOKEN,header.get(JsonKey.X_AUTHENTICATED_USER_TOKEN),
+            JsonKey.AUTHORIZATION, header.get(JsonKey.authorization)
+    );
+
+    logger.info("headers for search url:"+header);
+
+    Gson gson = new Gson();
+    String requestBody = gson.toJson(requestForUserSearch.getRequest());
+    logger.info("request for searchUrl after:"+requestForUserSearch.getRequest());
+
+    HttpResponse<String> userSearchResponse = Unirest.post(searchUrl)
+            .headers(headers)
+            .body(requestBody)
+            .asString();
+
+    logger.info("response from search url:"+userSearchResponse.getStatus());
+    String jsonString = userSearchResponse.getBody();
+
+    JSONObject responseObj = new JSONObject(jsonString);
+    JSONArray contentArray = responseObj.getJSONObject(JsonKey.RESULT).getJSONObject(JsonKey.RESPONSE).getJSONArray(JsonKey.CONTENT);
+
+    /***** Count users for each department  *****/
+    JSONObject departments = new JSONObject();
+    for (int i = 0; i < contentArray.length(); i++) {
+      JSONObject contentObj = contentArray.getJSONObject(i);
+      JSONObject profileDetails = contentObj.optJSONObject(JsonKey.PROFILE_DETAILS);
+
+      if (profileDetails != null && profileDetails.has(JsonKey.EMPLOYMENTDETAILS)) {
+        JSONObject employmentDetails = profileDetails.getJSONObject(JsonKey.EMPLOYMENTDETAILS);
+        if (employmentDetails.has(JsonKey.DEPARTMENTNAME)) {
+          String departmentName = employmentDetails.getString(JsonKey.DEPARTMENTNAME);
+          int userCount = departments.optInt(departmentName, 0);
+          departments.put(departmentName, userCount + 1);
+        }
+      }
+    }
+
+    // Construct the new JSON response
+    Response response = new Response();
+    List<Map<String, Object>> newContentList = new ArrayList<>();
+
+    for (String department : departments.keySet()) {
+      Map<String, Object> departmentObj = new HashMap<>();
+      departmentObj.put(JsonKey.DEPARTMENT, department);
+      departmentObj.put(JsonKey.USERCOUNT, departments.getInt(department));
+      newContentList.add(departmentObj);
+    }
+
+    response.getResult().put(JsonKey.CONTENT, newContentList);
+    sender().tell(response,self());
   }
 }
