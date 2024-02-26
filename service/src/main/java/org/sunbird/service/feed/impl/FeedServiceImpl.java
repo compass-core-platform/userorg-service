@@ -113,12 +113,16 @@ public class FeedServiceImpl implements IFeedService {
     logger.info("handleScheduledNotification started :: "+requestData);
     try {
       String scheduleTime = (String) requestData.getOrDefault("scheduleTime", ZonedDateTime.now().toString());
-      Instant instant = Instant.parse(scheduleTime);
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSXX");
+      Instant instant = Instant.from(formatter.parse(scheduleTime));
       Date date = Date.from(instant);
 
-      serializeDataToJson(requestData, "data");
-      serializeDataToJson(requestData, "filters");
+      List<Map<String, Object>> dataList = (List<Map<String, Object>>) requestData.get(JsonKey.DATA);
+      Map<String, Object> requestFilters = (Map<String, Object>) requestData.get("filters");
 
+      requestData.put("is_delivered", Boolean.FALSE);
+      requestData.put("data", objectMapper.writeValueAsString(dataList));
+      requestData.put("filters", objectMapper.writeValueAsString(requestFilters));
       requestData.put("scheduleTime", date);
       requestData.put("id", UUID.randomUUID().toString());
 
@@ -127,21 +131,12 @@ public class FeedServiceImpl implements IFeedService {
 
     } catch (Exception e) {
       logger.error(context, "Error occurred while processing scheduled notification: {}", e);
+      ProjectCommonException.throwServerErrorException(ResponseCode.SERVER_ERROR);
     }
     return scheduleNotificationDao.saveScheduledNotificationDetails(requestData, context);
   }
 
-  private void serializeDataToJson(Map<String, Object> requestData, String key) {
-    Object data = requestData.get(key);
-    if (data instanceof List) {
-      try {
-        logger.info("serializeDataToJson key :: "+data);
-        requestData.put(key, objectMapper.writeValueAsString(data));
-      } catch (JsonProcessingException e) {
-        logger.error(null,"Error occurred while serializing {} to JSON: {}", e);
-      }
-    }
-  }
+
 
   private Response handleImmediateNotification(Map<String, Object> requestData, RequestContext context) {
     logger.info("handleImmediateNotification started :: "+requestData);
