@@ -9,6 +9,7 @@ import javax.inject.Named;
 import org.sunbird.keys.JsonKey;
 import org.sunbird.operations.ActorOperations;
 import org.sunbird.request.Request;
+import org.sunbird.util.ProjectUtil;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.Attrs;
@@ -96,7 +97,7 @@ public class FeedController extends BaseController {
                 httpRequest.body().asJson(),
                 req -> {
                     Request request = (Request) req;
-                    //FeedRequestValidator.validateFeedRequest(request);
+                  //  FeedRequestValidator.validateFeedRequest(request);
                     return null;
                 },
                 null,
@@ -104,4 +105,18 @@ public class FeedController extends BaseController {
                 true,
                 httpRequest);
     }
+
+    public CompletionStage<Result> getNotifications(String delivered, Http.Request httpRequest) {
+        return handleRequest(
+                userFeedActor,
+                ActorOperations.GET_NOTIFICATION_LIST.getValue(),
+                null,
+                null,
+                delivered,
+                "delivered",
+                false,
+                httpRequest);
+    }
 }
+
+

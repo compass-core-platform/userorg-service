@@ -86,6 +86,7 @@ POST    /v1/user/feed/delete                    @controllers.feed.FeedController
 PATCH   /v1/user/feed/update                    @controllers.feed.FeedController.updateUserFeed(request: play.mvc.Http.Request)
 POST    /v2/user/feed/create                     @controllers.feed.FeedController.createUserFeedV2(request: play.mvc.Http.Request)
 POST    /private/user/feed/v2/create            @controllers.feed.FeedController.createUserFeedV2(request: play.mvc.Http.Request)
+GET     /v1/notification/list/:delivered         @controllers.feed.FeedController.getNotifications(delivered:String,request: play.mvc.Http.Request)
 
 #Sync
 POST    /v1/data/sync                           @controllers.sync.SyncController.sync(request: play.mvc.Http.Request)
