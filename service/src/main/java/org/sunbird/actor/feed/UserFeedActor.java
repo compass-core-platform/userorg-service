@@ -7,7 +7,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.util.*;
 import org.sunbird.actor.core.BaseActor;
+import org.sunbird.cassandra.CassandraOperation;
 import org.sunbird.client.NotificationServiceClient;
+import org.sunbird.helper.ServiceFactory;
 import org.sunbird.keys.JsonKey;
 import org.sunbird.model.user.Feed;
 import org.sunbird.request.Request;
@@ -23,6 +25,8 @@ public class UserFeedActor extends BaseActor {
   private IFeedService feedService;
 
   private final ObjectMapper mapper = new ObjectMapper();
+
+  private CassandraOperation cassandraOperation = ServiceFactory.getInstance();
   @Override
   public void onReceive(Request request) throws Throwable {
     Util.initializeContext(request, TelemetryEnvKey.USER);
@@ -47,6 +51,10 @@ public class UserFeedActor extends BaseActor {
         break;
       case "createUserFeedV2":
         createUserFeedV2(request, context);
+        break;
+      case "getNotificationList":
+        String deliverd = (String) request.getRequest().get("delivered");
+        fetchNotifications(deliverd, context);
         break;
       default:
         onReceiveUnsupportedOperation();
@@ -97,5 +105,31 @@ public class UserFeedActor extends BaseActor {
     Response feedCreateResponse = feedService.insertV1(request, context);
     logger.info("feedCreateResponse ::" +feedCreateResponse);
     sender().tell(feedCreateResponse, self());
+  }
+
+  private void fetchNotifications(String value, RequestContext context) {
+    List<Map<String, Object>> notificationsList = fetchNotificationsList(value,context);
+    List<Map<String, Object>> simplifiedNotifications = new ArrayList<>();
+    for (Map<String, Object> notification : notificationsList) {
+      Map<String, Object> simplifiedNotification = new HashMap<>();
+      simplifiedNotification.put("title",  notification.getOrDefault("title",""));
+      simplifiedNotification.put("scheduletime", notification.get("scheduletime"));
+      simplifiedNotification.put("audience", notification.getOrDefault("audience",""));
+      simplifiedNotifications.add(simplifiedNotification);
+    }
+    Map<String, Object> result = new HashMap<>();
+    result.put(JsonKey.NOTIFICATIONS, simplifiedNotifications);
+    Response response = new Response();
+    response.put(JsonKey.RESPONSE, result);
+    sender().tell(response, self());
+  }
+  private List<Map<String, Object>> fetchNotificationsList(String value, RequestContext context) {
+    logger.info("fetchNotifications::started.");
+    boolean isDelivered = Boolean.parseBoolean(value);
+    Map<String, Object> properties = new LinkedHashMap<>();
+    properties.put("is_delivered", isDelivered);
+    Response response = cassandraOperation.getRecordsByProperties("sunbird_notifications", "schedule_notifications", properties, null);
+    logger.info("fetchUnprocessedNotifications::response." + response);
+    return (List<Map<String, Object>>) response.get(JsonKey.RESPONSE);
   }
 }
