@@ -22,6 +22,7 @@ public enum ActorOperations {
     GET_USER_PROFILE_V3("getUserProfileV3", "USRRED"),
     GET_USER_PROFILE_V4("getUserProfileV4", "USRRED"),
     GET_USER_PROFILE_V5("getUserProfileV5", "USRRED"),
+    GET_NOTIFICATION_LIST("getNotificationList", "SHNLRED"),
 
     UPDATE_USER_INFO_ELASTIC("updateUserInfoToElastic", "UBKGUPD"),
 
@@ -42,6 +43,7 @@ public enum ActorOperations {
     BACKGROUND_SYNC("backgroundSync", "BKGESSYNC"),
     EMAIL_SERVICE("emailService", "EMAILNOTI"),
     FILE_STORAGE_SERVICE("fileStorageService", "STRGSER"),
+    IMAGE_STORAGE_SERVICE("imageStorageService", "ITRGSER"),
     HEALTH_CHECK("healthCheck", "HLTHCHK"),
     SEND_MAIL("sendMail", "NOTI"),
     ACTOR("actor", "HLTHCHK"),
