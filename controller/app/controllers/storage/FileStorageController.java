@@ -3,15 +3,14 @@ package controllers.storage;
 import akka.actor.ActorRef;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.BaseController;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -113,4 +112,28 @@ public class FileStorageController extends BaseController {
           createCommonExceptionResponse(exception, httpRequest));
     }
   }
+  public CompletionStage<Result> imageUpload(Http.Request httpRequest) {
+    Request reqObj = new Request();
+    try {
+      Http.MultipartFormData<File> body = httpRequest.body().asMultipartFormData();
+      Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
+      if (filePart != null) {
+        String fileName = filePart.getFilename();
+        String contentType = filePart.getContentType();
+        File file = filePart.getFile();
+        reqObj.setOperation(ActorOperations.IMAGE_STORAGE_SERVICE.getValue());
+        reqObj.getRequest().put(JsonKey.FILE_NAME, fileName);
+        reqObj.getRequest().put(JsonKey.FILE, file);
+      }
+    }catch (Exception e) {
+      ProjectCommonException exception =
+              new ProjectCommonException(
+                      (ProjectCommonException) e,
+                      ActorOperations.getOperationCodeByActorOperation(reqObj.getOperation()));
+      return CompletableFuture.completedFuture(
+              createCommonExceptionResponse(exception, httpRequest));
+    }
+    return actorResponseHandler(fileUploadServiceActor, reqObj, timeout, null, httpRequest);
+  }
+
 }

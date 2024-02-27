@@ -97,6 +97,7 @@ POST    /v1/org/upload                          @controllers.bulkapimanagement.B
 POST    /v1/bulk/location/upload                @controllers.bulkapimanagement.BulkUploadController.locationBulkUpload(request: play.mvc.Http.Request)
 GET     /v1/upload/status/:pid                  @controllers.bulkapimanagement.BulkUploadController.getUploadStatus(pid:String, request: play.mvc.Http.Request)
 POST    /v1/file/upload 				        @controllers.storage.FileStorageController.uploadFileService(request: play.mvc.Http.Request)
+POST    /v1/image/upload 				        @controllers.storage.FileStorageController.imageUpload(request: play.mvc.Http.Request)
 
 #Email
 POST    /v1/notification/email					@controllers.notificationservice.EmailServiceController.sendMail(request: play.mvc.Http.Request)
