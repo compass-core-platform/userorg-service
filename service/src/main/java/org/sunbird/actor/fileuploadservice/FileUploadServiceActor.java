@@ -3,7 +3,11 @@ package org.sunbird.actor.fileuploadservice;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Map;
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.sunbird.actor.core.BaseActor;
 import org.sunbird.exception.ProjectCommonException;
@@ -15,6 +19,7 @@ import org.sunbird.request.RequestContext;
 import org.sunbird.response.Response;
 import org.sunbird.util.CloudStorageUtil;
 import org.sunbird.util.ProjectUtil;
+import play.api.mvc.MultipartFormData;
 
 public class FileUploadServiceActor extends BaseActor {
 
@@ -22,6 +27,8 @@ public class FileUploadServiceActor extends BaseActor {
   public void onReceive(Request request) throws Throwable {
     if (request.getOperation().equalsIgnoreCase(ActorOperations.FILE_STORAGE_SERVICE.getValue())) {
       processFileUpload(request);
+    } else if (request.getOperation().equalsIgnoreCase(ActorOperations.IMAGE_STORAGE_SERVICE.getValue())) {
+      imageUpload(request);
     } else {
       onReceiveUnsupportedOperation();
     }
@@ -80,6 +87,39 @@ public class FileUploadServiceActor extends BaseActor {
             "Exception Occurred while closing fileInputStream in FileUploadServiceActor",
             e);
       }
+    }
+    response.put(JsonKey.URL, avatarUrl);
+    sender().tell(response, self());
+  }
+
+  private void imageUpload(Request actorMessage) throws IOException {
+    RequestContext context = actorMessage.getRequestContext();
+    String processId = ProjectUtil.getUniqueIdFromTimestamp(1);
+
+    String fileName = (String) actorMessage.getRequest().get(JsonKey.FILE_NAME);
+    File file = (File) actorMessage.getRequest().get(JsonKey.FILE);
+
+    Response response = new Response();
+
+    String fName = UUID.randomUUID()+"_"+fileName;
+    String avatarUrl = null;
+    try {
+      String cspProvider = ProjectUtil.getConfigValue(JsonKey.CLOUD_SERVICE_PROVIDER);
+      if (null == cspProvider) {
+        logger.info(context, "The cloud service is not available");
+        ProjectCommonException exception =
+                new ProjectCommonException(
+                        ResponseCode.invalidRequestData,
+                        ResponseCode.invalidRequestData.getErrorMessage(),
+                        ResponseCode.CLIENT_ERROR.getResponseCode());
+        sender().tell(exception, self());
+      }
+
+      avatarUrl= CloudStorageUtil.upload(cspProvider,"compass-storage",fName,file.getPath());
+      logger.info("uploaded image to cloud avatarUrl is ::"+avatarUrl);
+    } catch (Exception e) {
+      logger.error(context, "Exception Occurred while reading file in FileUploadServiceActor", e);
+      throw e;
     }
     response.put(JsonKey.URL, avatarUrl);
     sender().tell(response, self());
