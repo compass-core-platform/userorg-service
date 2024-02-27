@@ -292,6 +292,19 @@ public class FeedServiceImpl implements IFeedService {
   public Response feedNotification(Map<String,Object> notification, List<String> userIds, RequestContext context) {
     logger.info(context, "feedNotification:NOTIFICATIONS: data "+notification);
     logger.info(context, "feedNotification:userIds: "+userIds);
+
+    List<Map<String, Object>> dataList = (List<Map<String, Object>>) notification.get(JsonKey.DATA);
+    List<Map<String, Object>> notificationList = new ArrayList<>();
+    logger.info("size of the data "+dataList.size());
+    String subject = null;
+      for (Map<String, Object> data:dataList) {
+        Map<String, Object> action = (Map<String, Object>) data.get(JsonKey.ACTION);
+        Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
+        Map<String, Object> templateConfig = (Map<String, Object>) template.get(JsonKey.CONFIG);
+        subject = (String) templateConfig.getOrDefault("subject", "You have new notification");
+      }
+
+
     Request req = new Request();
     Map<String,Object> notifications = new HashMap<>();
     Map<String, Object> reqObj = new HashMap<>();
@@ -306,7 +319,8 @@ public class FeedServiceImpl implements IFeedService {
     dataObject.put("type", 1); // Type 1
     Map<String, Object> actionData = new HashMap<>();
     actionData.put("actionType", JsonKey.USER_FEED_DB);
-    actionData.put("title", notification.getOrDefault("title","You have new notification"));
+//    actionData.put("title", templateConfig.getOrDefault("subject","You have new notification"));
+    actionData.put("title", subject);
     actionData.put("description", notification.getOrDefault("dataValue",""));
     dataObject.put("actionData", actionData);
 
