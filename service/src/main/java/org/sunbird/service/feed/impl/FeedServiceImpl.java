@@ -298,18 +298,27 @@ public class FeedServiceImpl implements IFeedService {
     Map<String, Object> dataMap = new HashMap<>();
 
     reqObj.put("userId", userIds);
-    //TODO For Testing purpose will remove onces api is integrated.
-//    reqObj.put("userId", Arrays.asList("fe6e381c-7488-452c-8aab-40053361f23c"));
     reqObj.put(JsonKey.CATEGORY, JsonKey.USER_FEED_DB);
     reqObj.put(JsonKey.PRIORITY, 1);
 
-    dataMap.put(JsonKey.DATAVALUE,(String) notification.get(JsonKey.DATAVALUE));
-    reqObj.put(JsonKey.DATA, dataMap);
-    notifications.put(JsonKey.NOTIFICATIONS,Arrays.asList(reqObj));
-    req.setRequest(notifications);
-    logger.info(context, "feedNotification:NOTIFICATIONS: "+reqObj);
-    return serviceClient.sendSyncV2Notification(req,context);
 
+    Map<String, Object> dataObject = new HashMap<>();
+    dataObject.put("type", 1); // Type 1
+    Map<String, Object> actionData = new HashMap<>();
+    actionData.put("actionType", JsonKey.USER_FEED_DB);
+    actionData.put("title", notification.getOrDefault("title","You have new notification"));
+    actionData.put("description", notification.getOrDefault("dataValue",""));
+    dataObject.put("actionData", actionData);
+
+    reqObj.put(JsonKey.DATA, dataObject);
+
+    // Add notifications to the request
+    notifications.put(JsonKey.NOTIFICATIONS, Arrays.asList(reqObj));
+    req.setRequest(notifications);
+
+    logger.info(context, "feedNotification:NOTIFICATIONS: "+reqObj);
+    return serviceClient.sendSyncV2Notification(req, context);
   }
+
 
 }
