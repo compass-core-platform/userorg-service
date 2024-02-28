@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.json.JSONArray;
@@ -36,6 +38,9 @@ public class FeedServiceImpl implements IFeedService {
   private NotificationServiceClient serviceClient;
   private final ScheduleNotificationDao scheduleNotificationDao = ScheduleNotificationDaoImpl.getInstance();
   ObjectMapper objectMapper = new ObjectMapper();
+  Config config = ConfigFactory.load();
+  List<String> configMailIds = config.getStringList("emailids");
+  String fromEmail = config.getString("fromEmail");
 
   private String learner_BASE_URL = "http://learner-service:9000";
   private String USER_SEARCH_URL = "/private/user/v1/search";
@@ -183,7 +188,7 @@ public class FeedServiceImpl implements IFeedService {
       newTemplate.put(JsonKey.DATA, template.get(JsonKey.DATA));
       newTemplate.put(JsonKey.ID, template.get(JsonKey.ID));
       newTemplate.put(JsonKey.NOTIFICATIONID, requestData.getOrDefault(JsonKey.NOTIFICATIONID,""));
-      params.put(JsonKey.FROM_EMAIL, "gohila.mariappan@tarento.com");
+      params.put(JsonKey.FROM_EMAIL, fromEmail);
       newTemplate.put(JsonKey.PARAMS, params);
 
       Map<String, Object> newAction = new HashMap<>();
@@ -204,7 +209,12 @@ public class FeedServiceImpl implements IFeedService {
       notification.put(JsonKey.TYPE, data.get(JsonKey.TYPE));
       notification.put(JsonKey.PRIORITY, data.get(JsonKey.PRIORITY));
       notification.put(JsonKey.ACTION, newAction);
-      notification.put(JsonKey.IDS, emailIds);
+      if (configMailIds.contains("*")) {
+        notification.put(JsonKey.IDS, emailIds);
+      } else {
+        logger.info("configMailIds ::" +configMailIds);
+        notification.put(JsonKey.IDS, configMailIds);
+      }
       notificationList.add(notification);
     }
     return notificationList;
@@ -231,7 +241,8 @@ public class FeedServiceImpl implements IFeedService {
 
       return mapper.writeValueAsString(requestBody);
     } catch (Exception ex) {
-      ex.printStackTrace();
+      logger.error(null, "Error occurred while processing scheduled notification: {}", ex);
+      ProjectCommonException.throwServerErrorException(ResponseCode.SERVER_ERROR);
       return null;
     }
   }
