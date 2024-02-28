@@ -47,10 +47,10 @@ public class NotificationHandler implements Runnable {
             if (scheduleTime != null) {
                 LocalDateTime scheduleDateTime = scheduleTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 if (scheduleDateTime.isBefore(currentDateTime) || scheduleDateTime.isEqual(currentDateTime)) {
-                        logger.info("processNotification with schedule time in the future: " +notification.get("id"));
-                        processNotification(notification);
+                    logger.info("Processing notification with schedule time present: " + notification.get("id") + ", Schedule Time: " + scheduleTime);
+                    processNotification(notification);
                 } else {
-                    logger.info("Skipping notification with schedule time in the future: " + scheduleTime);
+                    logger.info("Skipping notification with schedule time in the future: " + scheduleTime + ", Notification ID: " + notification.get("id"));
                 }
             }
         }
