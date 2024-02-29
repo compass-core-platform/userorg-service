@@ -121,7 +121,7 @@ public class FeedServiceImpl implements IFeedService {
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSXX");
       Instant instant = Instant.from(formatter.parse(scheduleTime));
       Date date = Date.from(instant);
-
+      requestData.put("title",fetchTitle(requestData));
       List<Map<String, Object>> dataList = (List<Map<String, Object>>) requestData.get(JsonKey.DATA);
       Map<String, Object> requestFilters = (Map<String, Object>) requestData.get("filters");
 
@@ -130,7 +130,6 @@ public class FeedServiceImpl implements IFeedService {
       requestData.put("filters", objectMapper.writeValueAsString(requestFilters));
       requestData.put("scheduleTime", date);
       requestData.put("id", UUID.randomUUID().toString());
-      requestData.put("title",fetchTitle(requestData));
 
     } catch (Exception e) {
       logger.error(context, "Error occurred while processing scheduled notification: {}", e);
