@@ -130,9 +130,7 @@ public class FeedServiceImpl implements IFeedService {
       requestData.put("filters", objectMapper.writeValueAsString(requestFilters));
       requestData.put("scheduleTime", date);
       requestData.put("id", UUID.randomUUID().toString());
-
-      String audience = (String) requestData.getOrDefault("audience", "");
-      String title = (String) requestData.getOrDefault("title", "");
+      requestData.put("title",fetchTitle(requestData));
 
     } catch (Exception e) {
       logger.error(context, "Error occurred while processing scheduled notification: {}", e);
@@ -187,8 +185,8 @@ public class FeedServiceImpl implements IFeedService {
       newTemplate.put(JsonKey.TYPE, template.get(JsonKey.TYPE));
       newTemplate.put(JsonKey.DATA, template.get(JsonKey.DATA));
       newTemplate.put(JsonKey.ID, template.get(JsonKey.ID));
-      newTemplate.put(JsonKey.NOTIFICATIONID, requestData.getOrDefault(JsonKey.NOTIFICATIONID,""));
       params.put(JsonKey.FROM_EMAIL, fromEmail);
+      params.put(JsonKey.NOTIFICATIONID, requestData.getOrDefault(JsonKey.NOTIFICATIONID,""));
       newTemplate.put(JsonKey.PARAMS, params);
 
       Map<String, Object> newAction = new HashMap<>();
@@ -300,6 +298,18 @@ public class FeedServiceImpl implements IFeedService {
     return newRequest;
   }
 
+  public String fetchTitle(Map<String,Object> notification) {
+    List<Map<String, Object>> dataList = (List<Map<String, Object>>) notification.get(JsonKey.DATA);
+    String subject = null;
+    for (Map<String, Object> data:dataList) {
+      Map<String, Object> action = (Map<String, Object>) data.get(JsonKey.ACTION);
+      Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
+      Map<String, Object> templateConfig = (Map<String, Object>) template.get(JsonKey.CONFIG);
+      subject = (String) templateConfig.getOrDefault("subject", "You have new notification");
+    }
+    return subject;
+  }
+
   public Response feedNotification(Map<String,Object> notification, List<String> userIds, RequestContext context) {
     logger.info(context, "feedNotification:NOTIFICATIONS: data "+notification);
     logger.info(context, "feedNotification:userIds: "+userIds);
@@ -307,15 +317,7 @@ public class FeedServiceImpl implements IFeedService {
     List<Map<String, Object>> dataList = (List<Map<String, Object>>) notification.get(JsonKey.DATA);
     List<Map<String, Object>> notificationList = new ArrayList<>();
     logger.info("size of the data "+dataList.size());
-    String subject = null;
-      for (Map<String, Object> data:dataList) {
-        Map<String, Object> action = (Map<String, Object>) data.get(JsonKey.ACTION);
-        Map<String, Object> template = (Map<String, Object>) action.get(JsonKey.TEMPLATE);
-        Map<String, Object> templateConfig = (Map<String, Object>) template.get(JsonKey.CONFIG);
-        subject = (String) templateConfig.getOrDefault("subject", "You have new notification");
-      }
-
-
+    String subject = fetchTitle(notification);
     Request req = new Request();
     Map<String,Object> notifications = new HashMap<>();
     Map<String, Object> reqObj = new HashMap<>();
