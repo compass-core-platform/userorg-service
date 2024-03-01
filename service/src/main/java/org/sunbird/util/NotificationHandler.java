@@ -38,28 +38,31 @@ public class NotificationHandler implements Runnable {
     }
 
 
-    private void fetchAndScheduleNotifications() {
-        List<Map<String, Object>> unprocessedNotifications = fetchUnprocessedNotifications();
-        LocalDateTime currentDateTime = LocalDateTime.now();
-
-        for (Map<String, Object> notification : unprocessedNotifications) {
-            Date scheduleTime = (Date) notification.getOrDefault("scheduletime", null);
-            if (scheduleTime != null) {
-                LocalDateTime scheduleDateTime = scheduleTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                if (scheduleDateTime.isBefore(currentDateTime) || scheduleDateTime.isEqual(currentDateTime)) {
-                    logger.info("Processing notification with schedule time present: " + notification.get("id") + ", Schedule Time: " + scheduleTime);
-                    processNotification(notification);
-                } else {
-                    logger.info("Skipping notification with schedule time in the future: " + scheduleTime + ", Notification ID: " + notification.get("id"));
+        private void fetchAndScheduleNotifications() {
+            List<Map<String, Object>> unprocessedNotifications = fetchUnprocessedNotifications();
+            LocalDateTime currentDateTime = LocalDateTime.now();
+                if (!unprocessedNotifications.isEmpty()) {
+                for (Map<String, Object> notification : unprocessedNotifications) {
+                    Date scheduleTime = (Date) notification.getOrDefault(JsonKey.SCHEDULE_TIME, null);
+                    if (scheduleTime != null) {
+                        LocalDateTime scheduleDateTime = scheduleTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        if (scheduleDateTime.isBefore(currentDateTime) || scheduleDateTime.isEqual(currentDateTime)) {
+                            logger.info("Processing notification (ID: " + notification.get("id") + ") scheduled for: " + scheduleTime);
+                            processNotification(notification);
+                        } else {
+                            logger.info("Skipping notification (ID: " + notification.get("id") + ") scheduled for future time: " + scheduleTime);
+                        }
+                    }
                 }
-            }
+            } else {
+                    logger.info("No unprocessed notifications found. All notifications are up to date.");
+                }
         }
-    }
 
     private List<Map<String, Object>> fetchUnprocessedNotifications() {
         logger.info("fetchUnprocessedNotifications::started.");
         Map<String, Object> properties = new LinkedHashMap<>();
-        properties.put("is_delivered", Boolean.valueOf(Boolean.FALSE));
+        properties.put(JsonKey.IS_DELIVERED, Boolean.valueOf(Boolean.FALSE));
         Response response = cassandraOperation.getRecordsByProperties("sunbird_notifications", "schedule_notifications", properties, null);
         logger.info("fetchUnprocessedNotifications::response." + response);
         return (List<Map<String, Object>>) response.get(JsonKey.RESPONSE);
@@ -68,15 +71,15 @@ public class NotificationHandler implements Runnable {
 
     public void processNotification(Map<String,Object> notification) {
         try {
-            List<Map<String, Object>> dataList = objectMapper.readValue((String) notification.get("data"), new TypeReference<List<Map<String, Object>>>() {});
+            List<Map<String, Object>> dataList = objectMapper.readValue((String) notification.get(JsonKey.DATA), new TypeReference<List<Map<String, Object>>>() {});
             logger.info("user feed dataList :: "+dataList);
-            Map<String, List<String>> filters = objectMapper.readValue((String) notification.get("filters"), new TypeReference<Map<String, List<String>>>() {});
+            Map<String, List<String>> filters = objectMapper.readValue((String) notification.get(JsonKey.FILTERS), new TypeReference<Map<String, List<String>>>() {});
             logger.info("user feed filters :: "+filters);
             Map<String, Object> request = new HashMap<>();
-            request.put("data", dataList);
-            request.put("filters", filters);
-            request.put("dataValue",notification.getOrDefault("dataValue",""));
-            request.put("notificationId",notification.getOrDefault("id",""));
+            request.put(JsonKey.DATA, dataList);
+            request.put(JsonKey.FILTERS, filters);
+            request.put(JsonKey.DATAVALUE,notification.getOrDefault(JsonKey.DATAVALUE,""));
+            request.put(JsonKey.NOTIFICATIONID,notification.getOrDefault(JsonKey.ID,""));
             Map<String, Object> requestWrapper = new HashMap<>();
             requestWrapper.put("request", request);
             logger.info("user feed request ::: "+requestWrapper);
