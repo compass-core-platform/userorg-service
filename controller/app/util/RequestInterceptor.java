@@ -66,6 +66,7 @@ public class RequestInterceptor {
     apiHeaderIgnoreMap.put("/v1/data/sync", var);
     apiHeaderIgnoreMap.put("/v1/file/upload", var);
     apiHeaderIgnoreMap.put("/v1/user/getuser", var);
+    apiHeaderIgnoreMap.put("/v1/image/upload", var);
     // making org read as public access
     apiHeaderIgnoreMap.put("/v1/org/read", var);
     // making location APIs public access
