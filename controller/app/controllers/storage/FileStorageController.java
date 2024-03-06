@@ -6,11 +6,8 @@ import controllers.BaseController;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -112,28 +109,68 @@ public class FileStorageController extends BaseController {
           createCommonExceptionResponse(exception, httpRequest));
     }
   }
+//  public CompletionStage<Result> imageUpload(Http.Request httpRequest) {
+//    Request reqObj = new Request();
+//    try {
+//      Http.MultipartFormData<File> body = httpRequest.body().asMultipartFormData();
+//      Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
+//      if (filePart != null) {
+//        String fileName = filePart.getFilename();
+//        String contentType = filePart.getContentType();
+//        File file = filePart.getFile();
+//        reqObj.setOperation(ActorOperations.IMAGE_STORAGE_SERVICE.getValue());
+//        reqObj.getRequest().put(JsonKey.FILE_NAME, fileName);
+//        reqObj.getRequest().put(JsonKey.FILE, file);
+//      }
+//    }catch (Exception e) {
+//      ProjectCommonException exception =
+//              new ProjectCommonException(
+//                      (ProjectCommonException) e,
+//                      ActorOperations.getOperationCodeByActorOperation(reqObj.getOperation()));
+//      return CompletableFuture.completedFuture(
+//              createCommonExceptionResponse(exception, httpRequest));
+//    }
+//    return actorResponseHandler(fileUploadServiceActor, reqObj, timeout, null, httpRequest);
+//  }
+
+
   public CompletionStage<Result> imageUpload(Http.Request httpRequest) {
     Request reqObj = new Request();
     try {
-      Http.MultipartFormData<File> body = httpRequest.body().asMultipartFormData();
-      Http.MultipartFormData.FilePart<File> filePart = body.getFile("file");
-      if (filePart != null) {
-        String fileName = filePart.getFilename();
-        String contentType = filePart.getContentType();
-        File file = filePart.getFile();
+      JsonNode json = httpRequest.body().asJson();
+
+      if (json != null && json.has("image")) {
+        String base64Image = json.get("image").asText();
+        String imageName = json.get("imageName").asText();
+        String imageType = json.get("imageType").asText();
+
+        byte[] imageData = Base64.getDecoder().decode(base64Image);
+
+
+        File tempFile = createTempFile(imageData);
+        String fileName = imageName + "." + imageType;
         reqObj.setOperation(ActorOperations.IMAGE_STORAGE_SERVICE.getValue());
         reqObj.getRequest().put(JsonKey.FILE_NAME, fileName);
-        reqObj.getRequest().put(JsonKey.FILE, file);
+        reqObj.getRequest().put(JsonKey.FILE, tempFile);
+
+        return actorResponseHandler(fileUploadServiceActor, reqObj, timeout, null, httpRequest);
+      } else {
+        return CompletableFuture.completedFuture(badRequest("Missing or invalid 'image' field in JSON payload"));
       }
-    }catch (Exception e) {
-      ProjectCommonException exception =
-              new ProjectCommonException(
-                      (ProjectCommonException) e,
-                      ActorOperations.getOperationCodeByActorOperation(reqObj.getOperation()));
+    } catch (Exception e) {
+      ProjectCommonException exception = new ProjectCommonException(
+              (ProjectCommonException) e,
+              ActorOperations.getOperationCodeByActorOperation(reqObj.getOperation()));
       return CompletableFuture.completedFuture(
               createCommonExceptionResponse(exception, httpRequest));
     }
-    return actorResponseHandler(fileUploadServiceActor, reqObj, timeout, null, httpRequest);
+  }
+  private File createTempFile(byte[] imageData) throws IOException {
+    File tempFile = File.createTempFile("image", ".tmp");
+    try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+      fos.write(imageData);
+    }
+    return tempFile;
   }
 
 }
