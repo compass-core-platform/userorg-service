@@ -118,7 +118,8 @@ public class FeedServiceImpl implements IFeedService {
     logger.info("handleScheduledNotification started :: "+requestData);
     try {
       String scheduleTime = (String) requestData.getOrDefault("scheduleTime", ZonedDateTime.now().toString());
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSXX");
+      //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSSXX");
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
       Instant instant = Instant.from(formatter.parse(scheduleTime));
       Date date = Date.from(instant);
       requestData.put("title",fetchTitle(requestData));
